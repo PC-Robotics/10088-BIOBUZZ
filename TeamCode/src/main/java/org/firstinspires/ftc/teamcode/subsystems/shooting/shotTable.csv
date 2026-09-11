@@ -1,0 +1,14 @@
+# shot calibration table for ShotCalculatorDistance
+# format: distance (inches), rpm
+# rn its just random data but populate this later
+
+distance_inches,rpm
+24,3000
+36,3300
+48,3700
+60,4100
+72,4500
+84,4800
+96,5100
+108,5300
+120,5500

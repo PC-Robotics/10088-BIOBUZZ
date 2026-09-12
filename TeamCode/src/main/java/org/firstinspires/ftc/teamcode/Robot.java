@@ -2,17 +2,19 @@ package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.follower.FollowerLog;
+import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.Scheduler;
-import com.pedropathing.util.Timer;
+import com.pedropathing.utils.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.FlywheelShooter;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorMode;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.Locale;
 import java.util.function.Supplier;
 
 public class Robot {
-	private LinearOpMode myOpMode;   // gain access to methods in the calling OpMode.
+	private OpMode myOpMode;   // gain access to methods in the calling OpMode (iterative or linear).
 	public TelemetryManager telemetry;
 
 	// public DriveBase driveBase;
@@ -43,17 +45,31 @@ public class Robot {
 
 	public Pose currentPose;
 	public static Pose endPose;
-	// static variables are saved between auto and teleop so this variable helps us do that
-	public static Pose scorePose = new Pose(56, 18, Math.toRadians(315)); // legacy from decode
 
-	// Define a constructor that allows the OpMode to pass a reference to itself.
-	public Robot(LinearOpMode opMode, boolean isRobotCentric) {
+	private static final double FIELD_MIRROR_LINE = 72.0;
+
+	private static PoseFactory poses = PoseFactory.radians();
+
+	// static variables are saved between auto and teleop so this variable helps us do that
+	public static Pose scorePose; // legacy from decode
+
+	static { // run once at init
+		buildPoses();
+	}
+
+	private static void buildPoses() {
+		scorePose = poses.of(56, 18, Math.toRadians(315));
+	}
+
+	private FollowerLog followerLog;
+
+	public Robot(OpMode opMode, boolean isRobotCentric) {
 		this.myOpMode = opMode;
 		this.telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 		// drivetrain = new DriveTrain(myOpMode);
 		intake = new Intake(myOpMode);
 		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
-		follower = Constants.createFollower(myOpMode.hardwareMap);
+		follower = Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
 
 		hubs = myOpMode.hardwareMap.getAll(LynxModule.class);
 		for (LynxModule h : hubs) {
@@ -61,7 +77,7 @@ public class Robot {
 		}
 
 		loop = new Timer();
-		loop.resetTimer();
+		loop.reset();
 
 		Scheduler.reset();
 		Scheduler.schedule(
@@ -80,14 +96,14 @@ public class Robot {
 		// for loop timing
 		loops++;
 		if (loops == 10) {
-			double now = loop.getElapsedTime();
+			double now = loop.milliseconds();
 			loopTime = (now - lastLoopTime) / 10;
 			lastLoopTime = now;
 			loops = 0;
 		}
 
 		follower.update();
-		currentPose = follower.getPose();
+		currentPose = follower.pose();
 
 		flywheel.updateRobotPose(currentPose);
 		flywheel.updateGoalPose(scorePose);
@@ -104,6 +120,9 @@ public class Robot {
 		lines.add("Alliance: " + alliance);
 		lines.add("Pose: " + currentPose);
 		lines.add("Loop Time (ms): " + String.format(Locale.US, "%.2f", loopTime));
+		if (followerLog != null) {
+			lines.add("Follow State: " + followerLog.followState());
+		}
 
 		// get telemetry from opmode
 		for (Supplier<List<String>> source : telemetrySources) {
@@ -125,16 +144,22 @@ public class Robot {
 
 
 	public void stop() {
-		endPose = follower.getPose();
+		endPose = follower.pose();
 	}
 
 
 	public void setAlliance(Alliance alliance) {
 		if (Robot.alliance != alliance) {
-			scorePose = scorePose.mirror();
+			poses = poses.mirrorX(FIELD_MIRROR_LINE);
+			buildPoses();
 		}
 
 		Robot.alliance = alliance;
+	}
+
+
+	public FollowerLog getFollowerLog() {
+		return followerLog;
 	}
 
 

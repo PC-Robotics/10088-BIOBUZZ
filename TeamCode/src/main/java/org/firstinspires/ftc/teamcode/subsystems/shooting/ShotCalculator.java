@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooting;
 
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 
 public interface ShotCalculator {
 	void init();

@@ -6,7 +6,7 @@ import static org.firstinspires.ftc.teamcode.Utility.polarTo;
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.exceptions.CsvValidationException;
 
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 
 import java.io.FileReader;
 import java.io.IOException;

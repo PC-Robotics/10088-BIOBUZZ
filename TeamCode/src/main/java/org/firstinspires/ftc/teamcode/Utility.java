@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -108,8 +108,8 @@ public final class Utility {
 	 * @return a double array where [0] is distance in inches, [1] is angle in radians
 	 */
 	public static double[] polarTo(Pose p1, Pose p2) {
-		double dx = p2.getX() - p1.getX();
-		double dy = p2.getY() - p1.getY();
+		double dx = p2.x() - p1.x();
+		double dy = p2.y() - p1.y();
 		return new double[]{Math.hypot(dx, dy), Math.atan2(dy, dx)};
 	}
 
@@ -121,8 +121,8 @@ public final class Utility {
 	 * @return the distance in inches
 	 */
 	public static double distance(Pose p1, Pose p2) {
-		double dx = p2.getX() - p1.getX();
-		double dy = p2.getY() - p1.getY();
+		double dx = p2.x() - p1.x();
+		double dy = p2.y() - p1.y();
 		return Math.hypot(dx, dy);
 	}
 
@@ -134,8 +134,8 @@ public final class Utility {
 	 * @return the angle in radians
 	 */
 	public static double angle(Pose p1, Pose p2) {
-		double dx = p2.getX() - p1.getX();
-		double dy = p2.getY() - p1.getY();
+		double dx = p2.x() - p1.x();
+		double dy = p2.y() - p1.y();
 		return Math.atan2(dy, dx);
 	}
 }

@@ -10,7 +10,7 @@ import static org.firstinspires.ftc.teamcode.Utility.getMotorVelocityRPM;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -78,7 +78,7 @@ public class Intake {
 	private double distanceSensorSlowPollInterval = 200.0; // ms
 	private final ElapsedTime distanceSensorPollTimer = new ElapsedTime();
 
-	public Intake(LinearOpMode opMode) {
+	public Intake(OpMode opMode) {
 		motor = opMode.hardwareMap.get(DcMotorEx.class, "intake");
 		motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.shooting;
 
 import static org.firstinspires.ftc.teamcode.Utility.polarTo;
 
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 
 public class ShotCalculatorManualCloseFar implements ShotCalculator {
 	public enum ShotPreset {

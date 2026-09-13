@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.shooting;
 
+import static java.lang.Math.signum;
+
 import com.pedropathing.controllers.Controller;
 import com.pedropathing.controllers.filters.KalmanFilter;
 
@@ -29,16 +31,13 @@ public class FlywheelController {
 	public static double kS = 0.0;
 
 	private final KalmanFilter kalmanFilter;
-	private final Controller readyController;
 	private double target = 0.0;
 	private double error = 0.0;
-	private State state = State.SPINUP;
+	private State controllerState = State.SPINUP;
 
 
 	public FlywheelController() {
 		kalmanFilter = new KalmanFilter(STATE_STDDEV, MEASUREMENT_STDDEV);
-		readyController = Controller.sum( // proportional + feedforward + static
-				Controller.proportional(kP), Controller.proportionalFeedforward(kV), Controller.staticFeedforward(kS));
 	}
 
 
@@ -57,22 +56,22 @@ public class FlywheelController {
 
 
 	private void updateState(double filteredRPM) {
-		switch (state) {
+		switch (controllerState) {
 			case SPINUP:
 				if (filteredRPM >= target * READY_ENTER) {
-					state = State.READY;
+					controllerState = State.READY;
 				}
 				break;
 			case READY:
 				if (filteredRPM < target * READY_EXIT) {
-					state = State.SPINUP;
+					controllerState = State.SPINUP;
 				} else if (filteredRPM > target * COAST_ENTER) {
-					state = State.COAST;
+					controllerState = State.COAST;
 				}
 				break;
 			case COAST:
 				if (filteredRPM < target * COAST_EXIT) {
-					state = State.READY;
+					controllerState = State.READY;
 				}
 				break;
 		}
@@ -80,11 +79,11 @@ public class FlywheelController {
 
 
 	private double calculate() {
-		switch (state) {
+		switch (controllerState) {
 			case SPINUP:
 				return MAX_POWER;
 			case READY:
-				return Math.max(0.0, Math.min(1.0, readyController.calculate(target, error)));
+				return Math.max(0.0, Math.min(MAX_POWER, kV*target + kP*error + kS*signum(error)));
 			case COAST:
 			default:
 				return 0.0; // coast
@@ -99,11 +98,11 @@ public class FlywheelController {
 	public void reset(double measuredRPM) {
 		kalmanFilter.reset(measuredRPM, 1.0, 1.0);
 		error = 0.0;
-		state = State.SPINUP;
+		controllerState = State.SPINUP;
 	}
 
 	public State getState() {
-		return state;
+		return controllerState;
 	}
 
 	public double getError() {

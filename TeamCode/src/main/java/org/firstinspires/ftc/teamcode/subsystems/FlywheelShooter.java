@@ -3,23 +3,20 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static org.firstinspires.ftc.teamcode.Utility.clamp;
 import static org.firstinspires.ftc.teamcode.Utility.getMotorVelocityRPM;
 
 import androidx.annotation.NonNull;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.control.PIDFCoefficients;
-import com.pedropathing.control.PIDFController;
-import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.Command;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.subsystems.shooting.FlywheelController;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculator;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorDistance;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorManualCloseFar;
@@ -27,6 +24,7 @@ import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorMode;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorProportional;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotSolution;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,12 +34,6 @@ public class FlywheelShooter {
 	public enum State {
 		STOPPED,
 		SPINNING
-	}
-
-
-	public enum SpinPosition {
-		CLOSE,
-		FAR
 	}
 
 
@@ -65,61 +57,35 @@ public class FlywheelShooter {
 	}
 
 
-	// TODO - tune
-	private static final PIDFCoefficients COEFFICIENTS = new PIDFCoefficients(0.0005, 0.0, 0.0, 1.0);
-
 	public DcMotorEx leftMotor;
 	public DcMotorEx rightMotor;
 	public ServoImplEx light;
 
-	// current mode label, set by spin()/stop(); used for detection gating + telemetry
-	private State state = State.STOPPED;
-	private boolean readyToShoot = false;
-	private boolean readyCandidate = false;
+	private final FlywheelController controller = new FlywheelController();
 
-	// state trackers
-	private SpinPosition spinPosition = SpinPosition.CLOSE;
-	private final ShotCalculatorMode defaultShotCalculatorMode;
+	private State flywheelState = State.STOPPED;
+
 	private ShotCalculatorMode shotCalculatorMode;
 
-	// powers
 	private double commandedPower = 0.0;
-	private double currentRPM = 0.0;
 	private double targetRPM = 0.0;
 	private LedColor commandedLedColor = LedColor.OFF;
 
-	// location tracking
 	private Pose robotPose;
 	private Pose goalPose;
 	private ShotSolution currentShotSolution = new ShotSolution(0.0, 0.0, 0.0, false);
 
-	// pid stuff
-	private double settlingTolerance = 75.0;
-	private double settlingDerivativeTolerance = 50.0;
-	private int settlingTimeThreshold = 300; // ms
+	private final EnumMap<ShotCalculatorMode, ShotCalculator> calculators = new EnumMap<>(ShotCalculatorMode.class);
+	private final ShotCalculatorManualCloseFar manualCloseFarCalculator = new ShotCalculatorManualCloseFar();
 
-	private final ElapsedTime settlingTimer = new ElapsedTime();
-	private final PIDFController controller;
-
-	// calculators
-	private final ShotCalculatorDistance distanceCalculator;
-	private final ShotCalculatorManualCloseFar manualCloseFarCalculator;
-	private final ShotCalculatorProportional proportionalCalculator;
-
-	public FlywheelShooter(LinearOpMode opMode, @NonNull ShotCalculatorMode shotCalculatorMode) {
-		this.defaultShotCalculatorMode = shotCalculatorMode;
+	public FlywheelShooter(OpMode opMode, @NonNull ShotCalculatorMode shotCalculatorMode) {
 		this.shotCalculatorMode = shotCalculatorMode;
 
-		controller = new PIDFController(COEFFICIENTS);
-
-		distanceCalculator = new ShotCalculatorDistance();
-		manualCloseFarCalculator = new ShotCalculatorManualCloseFar();
-		proportionalCalculator = new ShotCalculatorProportional();
-
-		distanceCalculator.init();
-		manualCloseFarCalculator.init();
-		proportionalCalculator.init();
-		syncManualPreset();
+		calculators.put(ShotCalculatorMode.MANUAL_CLOSE_FAR, manualCloseFarCalculator);
+		calculators.put(ShotCalculatorMode.DISTANCE, new ShotCalculatorDistance());
+		calculators.put(ShotCalculatorMode.PROPORTIONAL, new ShotCalculatorProportional());
+		calculators.values().forEach(ShotCalculator::init);
+		manualCloseFarCalculator.setPreset(ShotCalculatorManualCloseFar.ShotPreset.CLOSE);
 
 		leftMotor = opMode.hardwareMap.get(DcMotorEx.class, "flywheelleft");
 		leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -139,61 +105,35 @@ public class FlywheelShooter {
 	// driver commands
 	// new schedule interrupts running command
 
-
-	// runs both motors with a pidf controller to match the given target rpm set by selected shot solution
 	public Command spin() {
-		return Command.build()
-				.setStart(() -> { // only runs on first loop (basically the reset)
-					state = State.SPINNING; // an iq too high??
-					controller.reset();
-					settlingTimer.reset();
-					readyToShoot = false;
-					readyCandidate = false;
-				})
-				.setExecute(() -> { // run every loop until interrupted
-					if (controller.getTargetPosition() != targetRPM) { // when target changes then update ts
-						controller.setTargetPosition(targetRPM);
-					}
+		return Command.build().setStart(() -> {
+			flywheelState = State.SPINNING;
+			controller.reset(measuredRPM());
+		}).setExecute(() -> {
+			controller.setTarget(targetRPM);
+			commandedPower = controller.update(measuredRPM());
+			leftMotor.setPower(commandedPower);
+			rightMotor.setPower(commandedPower);
 
-					controller.updatePosition(currentRPM);
-					controller.updateFeedForwardInput(0.5); // TODO - no hardcoding (!!!)
-
-					commandedPower = currentShotSolution.isValid() ? clamp(controller.run(), -1.0, 1.0) : 0.0;
-
-					// either this or a double tertiary like nahhhhhhhhhh
-					if (currentShotSolution.isValid()) {
-						if (readyToShoot) {
-							commandedLedColor = LedColor.GREEN;
-						} else {
-							commandedLedColor = LedColor.RED;
-						}
-					} else {
-						commandedLedColor = LedColor.YELLOW;
-					}
-
-					leftMotor.setPower(commandedPower);
-					rightMotor.setPower(commandedPower);
-					light.setPosition(commandedLedColor.getValue());
-				})
-				.setDone(() -> false) // HOLD THE LINE SOLDIERS
-				.setEnd(endCondition -> stopAction()) // STAND DOWN AND RETREAT SOLDIER
-				.requiring(leftMotor, rightMotor); // duh
+			if (!currentShotSolution.isValid()) {
+				commandedLedColor = LedColor.YELLOW;
+			} else {
+				commandedLedColor = isReadyToShoot() ? LedColor.GREEN : LedColor.RED;
+			}
+			light.setPosition(commandedLedColor.getValue());
+		}).setDone(() -> false).setEnd(endCondition -> stopAction()).requiring(leftMotor, rightMotor);
 	}
 
 
-	// the reason stop() doesnt just interrupt spin() is because if spin() is not running then spin.setEnd() cannot be called.
 	public Command stop() {
 		return instant(this::stopAction).requiring(leftMotor, rightMotor);
 	}
 
 
 	private void stopAction() {
-		state = State.STOPPED;
-		controller.reset();
+		flywheelState = State.STOPPED;
 		commandedPower = 0.0;
 		commandedLedColor = LedColor.OFF;
-		readyToShoot = false;
-		readyCandidate = false;
 		leftMotor.setPower(0.0);
 		rightMotor.setPower(0.0);
 		light.setPosition(LedColor.OFF.getValue());
@@ -201,179 +141,80 @@ public class FlywheelShooter {
 
 
 	public Command toggleSpin() {
-		return conditional(() -> state == State.SPINNING, stop(), spin());
+		return conditional(() -> flywheelState == State.SPINNING, stop(), spin());
 	}
 
 	// run every single loop
 	public Command periodic() {
-		return infinite(() -> { // runs forever
-			calculateRPM();
-			updateShotSolution();
-			updateReadyToShoot();
-		});
+		return infinite(this::updateShotSolution);
+	}
+
+	private double measuredRPM() {
+		return (getMotorVelocityRPM(leftMotor) + getMotorVelocityRPM(rightMotor)) * 0.5;
+	}
+
+	// controller-derived values (filtered RPM, error) are only meaningful while it's being updated
+	private boolean controllerRunning() {
+		return flywheelState == State.SPINNING;
 	}
 
 	private void updateShotSolution() {
-		ShotCalculator activeCalculator = getActiveShotCalculator();
+		ShotCalculator active = calculators.getOrDefault(shotCalculatorMode, manualCloseFarCalculator);
 
 		if (robotPose != null) {
-			activeCalculator.updateRobotPose(robotPose);
+			active.updateRobotPose(robotPose);
 		}
 		if (goalPose != null) {
-			activeCalculator.updateGoalPose(goalPose);
+			active.updateGoalPose(goalPose);
 		}
 
-		currentShotSolution = activeCalculator.run();
+		currentShotSolution = active.run();
 		targetRPM = currentShotSolution.isValid() ? currentShotSolution.getTargetRPM() : 0.0;
 	}
 
-	private ShotCalculator getActiveShotCalculator() {
-		switch (shotCalculatorMode) {
-			case DISTANCE:
-				return distanceCalculator;
-			case PROPORTIONAL:
-				return proportionalCalculator;
-			case MANUAL_CLOSE_FAR:
-			default:
-				return manualCloseFarCalculator;
-		}
-	}
-
-	private void syncManualPreset() {
-		switch (spinPosition) {
-			case CLOSE:
-				manualCloseFarCalculator.setPreset(ShotCalculatorManualCloseFar.ShotPreset.CLOSE);
-				break;
-			case FAR:
-				manualCloseFarCalculator.setPreset(ShotCalculatorManualCloseFar.ShotPreset.FAR);
-				break;
-		}
-	}
-
-	private void updateReadyToShoot() {
-		boolean sus =
-				state == State.SPINNING
+	public boolean isReadyToShoot() {
+		return flywheelState == State.SPINNING
 				&& currentShotSolution.isValid()
-				&& Math.abs(controller.getError()) <= settlingTolerance
-				&& Math.abs(controller.getErrorDerivative()) <= settlingDerivativeTolerance;
-
-		if (sus) {
-			if (!readyCandidate) { // edge detector (dont spam timer reset)
-				readyCandidate = true;
-				settlingTimer.reset();
-			}
-
-			readyToShoot = settlingTimer.milliseconds() >= settlingTimeThreshold;
-		} else {
-			readyCandidate = false;
-			readyToShoot = false;
-		}
-	}
-
-	private void calculateRPM() {
-		currentRPM = (getMotorVelocityRPM(leftMotor) + getMotorVelocityRPM(rightMotor)) * 0.5;
+				&& controller.getState() == FlywheelController.State.READY;
 	}
 
 	// telemetry for robot controller
 	public List<String> getSimpleTelemetry() {
 		return List.of(
-				"Flywheel State: " + state,
+				"Flywheel State: " + flywheelState,
 				"Calculator Mode: " + shotCalculatorMode,
-				"Spin Position: " + spinPosition,
-				"Ready To Shoot: " + readyToShoot,
+				"Manual Preset: " + manualCloseFarCalculator.getPreset(),
+				"Ready To Shoot: " + isReadyToShoot(),
 				"Power: " + String.format(Locale.US, "%.2f", commandedPower)
 		);
 	}
 
 	public List<String> getDetailedTelemetry() {
 		return List.of(
-				"Flywheel State: " + state,
+				"Flywheel State: " + flywheelState,
+				"Controller State: " + controller.getState(),
 				"Calculator Mode: " + shotCalculatorMode,
-				"Spin Position: " + spinPosition,
+				"Manual Preset: " + manualCloseFarCalculator.getPreset(),
 				"Commanded Power: " + String.format(Locale.US, "%.2f", commandedPower),
-				"Left Motor Power: " + String.format(Locale.US, "%.2f", leftMotor.getPower()),
-				"Right Motor Power: " + String.format(Locale.US, "%.2f", rightMotor.getPower()),
-				"Current RPM: " + String.format(Locale.US, "%.2f", currentRPM),
+				"Current RPM: " + String.format(Locale.US, "%.2f", measuredRPM()),
+				"Filtered RPM: " + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getFilteredRPM() : Double.NaN),
 				"Target RPM: " + String.format(Locale.US, "%.2f", targetRPM),
+				"Error: " + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getError() : Double.NaN),
 				"Shot Valid: " + currentShotSolution.isValid(),
 				"Shot Distance: " + String.format(Locale.US, "%.2f", currentShotSolution.getDistance()),
-				"Shot Heading: " + String.format(Locale.US, "%.4f", currentShotSolution.getHeading()),
-				"PID Error: " + String.format(Locale.US, "%.2f", controller.getError()),
-				"PID Error Derivative: " + String.format(Locale.US, "%.2f", controller.getErrorDerivative()),
-				"Ready Candidate: " + readyCandidate,
-				"Ready To Shoot: " + readyToShoot,
-				"Settling Timer (ms): " + String.format(Locale.US, "%.1f", settlingTimer.milliseconds()),
-				"Settling Tolerance: " + String.format(Locale.US, "%.2f", settlingTolerance),
-				"Settling Derivative Tolerance: " + String.format(Locale.US, "%.2f", settlingDerivativeTolerance),
-				"Settling Time Threshold (ms): " + String.format(Locale.US, "%.1f", (double) settlingTimeThreshold),
+				"Ready To Shoot: " + isReadyToShoot(),
 				"LED Color: " + commandedLedColor
 		);
 	}
 
 
-	// getters and setterss
-	public boolean isReadyToShoot() {
-		return readyToShoot;
-	}
-
-	public SpinPosition getSpinPosition() {
-		return spinPosition;
-	}
-
-	public void setSpinPosition(@NonNull SpinPosition spinPosition) {
-		this.spinPosition = spinPosition;
-		syncManualPreset();
-		readyToShoot = false;
-		readyCandidate = false;
-		settlingTimer.reset();
-	}
-
-	public ShotCalculatorMode getShotCalculatorMode() {
-		return shotCalculatorMode;
-	}
-
-	public ShotCalculatorMode getDefaultShotCalculatorMode() {
-		return defaultShotCalculatorMode;
+	// getters and setters
+	public void setManualPreset(@NonNull ShotCalculatorManualCloseFar.ShotPreset preset) {
+		manualCloseFarCalculator.setPreset(preset);
 	}
 
 	public void setShotCalculatorMode(@NonNull ShotCalculatorMode shotCalculatorMode) {
 		this.shotCalculatorMode = shotCalculatorMode;
-		readyToShoot = false;
-		readyCandidate = false;
-		settlingTimer.reset();
-		controller.reset();
-	}
-
-	public State getState() {
-		return state;
-	}
-
-	public void setSettlingTolerance(double settlingTolerance) {
-		this.settlingTolerance = Math.max(0.0, settlingTolerance);
-	}
-
-	public void setSettlingDerivativeTolerance(double settlingDerivativeTolerance) {
-		this.settlingDerivativeTolerance = Math.max(0.0, settlingDerivativeTolerance);
-	}
-
-	public void setSettlingTimeThreshold(int settlingTimeThreshold) {
-		this.settlingTimeThreshold = Math.max(0, settlingTimeThreshold);
-	}
-
-	public double getCurrentRPM() {
-		return currentRPM;
-	}
-
-	public double getTargetRPM() {
-		return targetRPM;
-	}
-
-	public double getCommandedPower() {
-		return commandedPower;
-	}
-
-	public ShotSolution getCurrentShotSolution() {
-		return currentShotSolution;
 	}
 
 	public void updateRobotPose(Pose robotPose) {
@@ -382,17 +223,5 @@ public class FlywheelShooter {
 
 	public void updateGoalPose(Pose goalPose) {
 		this.goalPose = goalPose;
-	}
-
-	public ShotCalculatorDistance getDistanceCalculator() {
-		return distanceCalculator;
-	}
-
-	public ShotCalculatorManualCloseFar getManualCloseFarCalculator() {
-		return manualCloseFarCalculator;
-	}
-
-	public ShotCalculatorProportional getProportionalCalculator() {
-		return proportionalCalculator;
 	}
 }

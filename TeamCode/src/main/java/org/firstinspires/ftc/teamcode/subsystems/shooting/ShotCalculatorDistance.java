@@ -8,8 +8,12 @@ import com.opencsv.exceptions.CsvValidationException;
 
 import com.pedropathing.math.Pose;
 
-import java.io.FileReader;
+import android.content.Context;
+
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -97,7 +101,10 @@ public class ShotCalculatorDistance implements ShotCalculator {
 
 	public int loadFromCSV(String fileName, String keyHeader, String valueHeader) {
 		int linesLoaded = 0;
-		try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(new FileReader(fileName))) {
+		// read from APK assets
+		Context context = AppUtil.getDefContext();
+		try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(
+				new InputStreamReader(context.getAssets().open(fileName)))) {
 			Map<String, String> row;
 			String k, v;
 			while ((row = reader.readMap()) != null) { // 2 in 1

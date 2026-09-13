@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.FlywheelShooter;
+import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorManualCloseFar;
 
 @TeleOp(name = "Basic TeleOp")
 public class BasicTeleOp extends OpMode {
@@ -44,10 +44,10 @@ public class BasicTeleOp extends OpMode {
 			robot.flywheel.toggleSpin().schedule();
 		}
 		if (gamepad1.dpadUpWasPressed()) {
-			robot.flywheel.setSpinPosition(FlywheelShooter.SpinPosition.FAR);
+			robot.flywheel.setManualPreset(ShotCalculatorManualCloseFar.ShotPreset.FAR);
 		}
 		if (gamepad1.dpadDownWasPressed()) {
-			robot.flywheel.setSpinPosition(FlywheelShooter.SpinPosition.CLOSE);
+			robot.flywheel.setManualPreset(ShotCalculatorManualCloseFar.ShotPreset.CLOSE);
 		}
 
 		robot.periodic();

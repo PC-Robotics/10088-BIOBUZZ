@@ -25,9 +25,9 @@ public class ShotCalculatorProportional implements ShotCalculator {
 	private Pose robotPose;
 	private Pose goalPose;
 
-	private double launchAngleDegrees = 45.0;
+	// TODO - tune and figure out valuess
+	private double launchAngleDegrees = 45.0; // change if using variable hood height
 
-	// heights above field floor, inches
 	private double launchHeight = 12.0;
 	private double goalHeight = 38.0;
 

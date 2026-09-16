@@ -30,7 +30,7 @@ import java.util.Locale;
 
 // shooter class. It can hot-load different shot calculation methods if one fails.
 @Configurable
-public class FlywheelShooter {
+public class FlywheelShooter implements Subsystem {
 	public enum State {
 		STOPPED,
 		SPINNING
@@ -125,6 +125,7 @@ public class FlywheelShooter {
 	}
 
 
+	@Override
 	public Command stop() {
 		return instant(this::stopAction).requiring(leftMotor, rightMotor);
 	}
@@ -145,6 +146,7 @@ public class FlywheelShooter {
 	}
 
 	// run every single loop
+	@Override
 	public Command periodic() {
 		return infinite(this::updateShotSolution);
 	}
@@ -179,6 +181,7 @@ public class FlywheelShooter {
 	}
 
 	// telemetry for robot controller
+	@Override
 	public List<String> getSimpleTelemetry() {
 		return List.of(
 				"Flywheel State: " + flywheelState,
@@ -189,6 +192,8 @@ public class FlywheelShooter {
 		);
 	}
 
+
+	@Override
 	public List<String> getDetailedTelemetry() {
 		return List.of(
 				"Flywheel State: " + flywheelState,

@@ -25,7 +25,7 @@ import java.util.Locale;
 
 // modular and generalized intake subsystem with jam detection and clearing, and item detection
 @Configurable
-public class Intake {
+public class Intake implements Subsystem {
 	public enum State {
 		STOPPED,
 		HOLDING,
@@ -38,7 +38,7 @@ public class Intake {
 	private final DistanceSensor distanceSensor;
 
 	// current mode label, set by the mode commands; used for detection gating + telemetry
-	private State state = State.STOPPED;
+	private State intakeState = State.STOPPED;
 
 	// powers are inverted in code
 	private double holdingPower = 0.05;
@@ -92,36 +92,39 @@ public class Intake {
 	public Command intake() {
 		return Command.build() // runs continuously until interrupted
 				.setStart(() -> { // only runs on first loop
-					state = State.INTAKING; // set state
+					intakeState = State.INTAKING; // set state
 					intakeRunTimer.reset(); // start the intake run timer for jam detection
 					motor.setPower(intakingPower);
 				}).setDone(() -> false) // hold motor until interrupted
 				.requiring(motor);
 	}
 
+
+	@Override
 	public Command stop() {
 		return instant(() -> { // only runs one loop
-			state = State.STOPPED;
+			intakeState = State.STOPPED;
 			motor.setPower(0.0);
 		}).requiring(motor);
 	}
 
 	public Command hold() {
 		return instant(() -> { // only runs one loop
-			state = State.HOLDING;
+			intakeState = State.HOLDING;
 			motor.setPower(-holdingPower);
 		}).requiring(motor);
 	}
 
 	public Command outtake() {
 		return instant(() -> { // only runs one loop
-			state = State.OUTTAKING;
+			intakeState = State.OUTTAKING;
 			motor.setPower(-outtakingPower);
 		}).requiring(motor);
 	}
 
-	public Command toggleIntake() {
-		return conditional(() -> state == State.INTAKING, stop(), intake());
+
+	public Command toggle() {
+		return conditional(() -> intakeState == State.INTAKING, stop(), intake());
 	}
 
 
@@ -145,11 +148,12 @@ public class Intake {
 	}
 
 	// runs detections
+	@Override
 	public Command periodic() {
 		return infinite(() -> { // runs forever
 			detectItem();
 			detectJam();
-			if (autoJamClearingEnabled && state == State.INTAKING && jammed && !clearing) { // if should clear...
+			if (autoJamClearingEnabled && intakeState == State.INTAKING && jammed && !clearing) { // if should clear...
 				clearJam().schedule(); // first build clearJam and then schedule it
 			}
 		});
@@ -182,7 +186,7 @@ public class Intake {
 	private void detectItem() {
 		// dynamic polling because sensor reads are EXPENSIVE
 		// if robot already detects item, then poll fast. If there is no item, then poll slow.
-		double pollInterval = (state == State.INTAKING || hasItem) ? distanceSensorFastPollInterval : distanceSensorSlowPollInterval;
+		double pollInterval = (intakeState == State.INTAKING || hasItem) ? distanceSensorFastPollInterval : distanceSensorSlowPollInterval;
 
 		if (distanceSensorPollTimer.milliseconds() < pollInterval) {
 			return;
@@ -205,9 +209,10 @@ public class Intake {
 	}
 
 	// telemetry for robot controller
+	@Override
 	public List<String> getSimpleTelemetry() {
 		return List.of(
-				"Intake State: " + state,
+				"Intake State: " + intakeState,
 				"Has Item: " + hasItem,
 				"Jammed: " + jammed,
 				"Clearing: " + clearing,
@@ -217,9 +222,10 @@ public class Intake {
 	}
 
 	// just spamming atp
+	@Override
 	public List<String> getDetailedTelemetry() {
 		return List.of(
-				"Intake State: " + state,
+				"Intake State: " + intakeState,
 				"Motor Power: " + String.format(Locale.US, "%.2f", motor.getPower()),
 				"Motor Current (A): " + String.format(Locale.US, "%.2f", motor.getCurrent(CurrentUnit.AMPS)),
 				"Motor Velocity (RPM): " + String.format(Locale.US, "%.2f", getMotorVelocityRPM(motor)),
@@ -267,7 +273,7 @@ public class Intake {
 	}
 
 	public State getState() {
-		return state;
+		return intakeState;
 	}
 
 	public double getMotorPower() {

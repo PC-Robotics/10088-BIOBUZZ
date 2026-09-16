@@ -35,7 +35,7 @@ public class BasicTeleOp extends OpMode {
 		);
 
 		if (gamepad1.aWasPressed()) {
-			robot.intake.toggleIntake().schedule();
+			robot.intake.toggle().schedule();
 		}
 		if (gamepad1.bWasPressed()) {
 			robot.intake.outtake().schedule();

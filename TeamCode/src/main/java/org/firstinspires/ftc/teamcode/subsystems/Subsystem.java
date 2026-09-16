@@ -1,15 +1,22 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.pedropathing.ivy.commands.Commands.infinite;
+
+import com.pedropathing.ivy.Command;
+
 import java.util.Collections;
 import java.util.List;
 
+// common surface for team subsystems in the Ivy command style: subsystems expose behavior as
+// Commands the Scheduler runs, not imperative methods. Hardware is initialized in the constructor.
 public interface Subsystem {
-	void init();
+	// constructor should have param (OpMode opMode) and init hardware
 
-	default void update() {
-	}
+	Command stop();
 
-	default void stop() {
+	default Command periodic() {
+		return infinite(() -> {
+		});
 	}
 
 	default List<String> getSimpleTelemetry() {

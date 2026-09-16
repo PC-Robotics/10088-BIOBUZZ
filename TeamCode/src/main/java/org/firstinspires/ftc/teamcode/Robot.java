@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.subsystems.FlywheelShooter;
 import org.firstinspires.ftc.teamcode.subsystems.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
@@ -29,7 +30,12 @@ public class Robot {
 	// public DriveBase driveBase;
 	public Intake intake;
 	public FlywheelShooter flywheel;
+	public LinearSlide slide;
 	public Gate gate;
+
+	// every subsystem, driven uniformly at startup (stop + periodic) and shutdown (stop).
+	// add new subsystems here so they get initialized and turned off automatically.
+	private Subsystem[] subsystems;
 
 	public boolean isRobotCentric = false;
 
@@ -74,6 +80,8 @@ public class Robot {
 		intake = new Intake(myOpMode);
 		gate = new Gate(myOpMode);
 		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
+		slide = new LinearSlide(myOpMode);
+		subsystems = new Subsystem[]{intake, gate, flywheel, slide};
 		follower = Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
 
 		hubs = myOpMode.hardwareMap.getAll(LynxModule.class);
@@ -85,12 +93,12 @@ public class Robot {
 		loop.reset();
 
 		Scheduler.reset();
-		Scheduler.schedule(
-				intake.stop(), flywheel.stop(), gate.stop(),
-				// drivetrain.stop(),
-				intake.periodic(), flywheel.periodic(), gate.periodic()
-				// drivetrain.periodic()
-		);
+		for (Subsystem s : subsystems) {
+			Scheduler.schedule(s.stop());
+		}
+		for (Subsystem s : subsystems) {
+			Scheduler.schedule(s.periodic());
+		}
 
 		currentPose = null;
 		this.isRobotCentric = isRobotCentric;
@@ -137,6 +145,7 @@ public class Robot {
 		// get telemetry from subsystems
 		lines.addAll(intake.getSimpleTelemetry());
 		lines.addAll(flywheel.getSimpleTelemetry());
+		lines.addAll(slide.getSimpleTelemetry());
 		lines.addAll(gate.getSimpleTelemetry());
 
 		telemetry.debug(lines.toArray(new String[0]));
@@ -151,6 +160,12 @@ public class Robot {
 
 	public void stop() {
 		endPose = follower.pose();
+
+		Scheduler.reset();
+		for (Subsystem s : subsystems) {
+			Scheduler.schedule(s.stop());
+		}
+		Scheduler.execute();
 	}
 
 

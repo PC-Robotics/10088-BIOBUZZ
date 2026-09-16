@@ -34,6 +34,10 @@ public class Robot {
 	public Gate gate;
 	private Subsystem[] subsystems;
 
+	// every subsystem, driven uniformly at startup (stop + periodic) and shutdown (stop).
+	// add new subsystems here so they get initialized and turned off automatically.
+	private Subsystem[] subsystems;
+
 	public boolean isRobotCentric = false;
 
 	// pedro

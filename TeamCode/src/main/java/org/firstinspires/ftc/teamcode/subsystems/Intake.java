@@ -54,7 +54,7 @@ public class Intake implements Subsystem {
 
 	// jam clearing
 	private double jamClearDuration = 250.0; // ms
-	private boolean autoJamClearingEnabled = true;
+	private boolean autoJamClearingEnabled = false;
 
 	private boolean jamCandidate = false;
 	private boolean jammed = false;

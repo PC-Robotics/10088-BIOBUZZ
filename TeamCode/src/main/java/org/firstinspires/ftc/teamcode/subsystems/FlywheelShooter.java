@@ -47,9 +47,11 @@ public class FlywheelShooter implements Subsystem {
 
 		private final double value;
 
+
 		LedColor(double value) {
 			this.value = value;
 		}
+
 
 		public double getValue() {
 			return value;
@@ -78,6 +80,7 @@ public class FlywheelShooter implements Subsystem {
 	private final EnumMap<ShotCalculatorMode, ShotCalculator> calculators = new EnumMap<>(ShotCalculatorMode.class);
 	private final ShotCalculatorManualCloseFar manualCloseFarCalculator = new ShotCalculatorManualCloseFar();
 
+
 	public FlywheelShooter(OpMode opMode, @NonNull ShotCalculatorMode shotCalculatorMode) {
 		this.shotCalculatorMode = shotCalculatorMode;
 
@@ -105,23 +108,28 @@ public class FlywheelShooter implements Subsystem {
 	// driver commands
 	// new schedule interrupts running command
 
-	public Command spin() {
-		return Command.build().setStart(() -> {
-			flywheelState = State.SPINNING;
-			controller.reset(measuredRPM());
-		}).setExecute(() -> {
-			controller.setTarget(targetRPM);
-			commandedPower = controller.update(measuredRPM());
-			leftMotor.setPower(commandedPower);
-			rightMotor.setPower(commandedPower);
 
-			if (!currentShotSolution.isValid()) {
-				commandedLedColor = LedColor.YELLOW;
-			} else {
-				commandedLedColor = isReadyToShoot() ? LedColor.GREEN : LedColor.RED;
-			}
-			light.setPosition(commandedLedColor.getValue());
-		}).setDone(() -> false).setEnd(endCondition -> stopAction()).requiring(leftMotor, rightMotor);
+	public Command spin() {
+		return Command.build()
+				.setStart(() -> {
+					flywheelState = State.SPINNING;
+					controller.reset(measuredRPM());
+				}).setExecute(() -> {
+					controller.setTarget(targetRPM);
+					commandedPower = controller.update(measuredRPM());
+					leftMotor.setPower(commandedPower);
+					rightMotor.setPower(commandedPower);
+
+					if (!currentShotSolution.isValid()) {
+						commandedLedColor = LedColor.YELLOW;
+					} else {
+						commandedLedColor = isReadyToShoot() ? LedColor.GREEN : LedColor.RED;
+					}
+					light.setPosition(commandedLedColor.getValue());
+				})
+				.setDone(() -> false)
+				.setEnd(endCondition -> stopAction())
+				.requiring(leftMotor, rightMotor);
 	}
 
 
@@ -145,20 +153,24 @@ public class FlywheelShooter implements Subsystem {
 		return conditional(() -> flywheelState == State.SPINNING, stop(), spin());
 	}
 
+
 	// run every single loop
 	@Override
 	public Command periodic() {
 		return infinite(this::updateShotSolution);
 	}
 
+
 	private double measuredRPM() {
 		return (getMotorVelocityRPM(leftMotor) + getMotorVelocityRPM(rightMotor)) * 0.5;
 	}
+
 
 	// controller-derived values (filtered RPM, error) are only meaningful while it's being updated
 	private boolean controllerRunning() {
 		return flywheelState == State.SPINNING;
 	}
+
 
 	private void updateShotSolution() {
 		ShotCalculator active = calculators.getOrDefault(shotCalculatorMode, manualCloseFarCalculator);
@@ -174,11 +186,13 @@ public class FlywheelShooter implements Subsystem {
 		targetRPM = currentShotSolution.isValid() ? currentShotSolution.getTargetRPM() : 0.0;
 	}
 
+
 	public boolean isReadyToShoot() {
 		return flywheelState == State.SPINNING
 				&& currentShotSolution.isValid()
 				&& controller.getState() == FlywheelController.State.READY;
 	}
+
 
 	// telemetry for robot controller
 	@Override
@@ -218,13 +232,16 @@ public class FlywheelShooter implements Subsystem {
 		manualCloseFarCalculator.setPreset(preset);
 	}
 
+
 	public void setShotCalculatorMode(@NonNull ShotCalculatorMode shotCalculatorMode) {
 		this.shotCalculatorMode = shotCalculatorMode;
 	}
 
+
 	public void updateRobotPose(Pose robotPose) {
 		this.robotPose = robotPose;
 	}
+
 
 	public void updateGoalPose(Pose goalPose) {
 		this.goalPose = goalPose;

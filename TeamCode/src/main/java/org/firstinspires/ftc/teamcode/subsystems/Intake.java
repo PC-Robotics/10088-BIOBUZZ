@@ -78,6 +78,7 @@ public class Intake implements Subsystem {
 	private double distanceSensorSlowPollInterval = 200.0; // ms
 	private final ElapsedTime distanceSensorPollTimer = new ElapsedTime();
 
+
 	public Intake(OpMode opMode) {
 		motor = opMode.hardwareMap.get(DcMotorEx.class, "intake");
 		motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -86,6 +87,7 @@ public class Intake implements Subsystem {
 
 		distanceSensor = opMode.hardwareMap.get(DistanceSensor.class, "intakeSensor");
 	}
+
 
 	// driver commands
 	// new schedule interrupts running command
@@ -108,12 +110,14 @@ public class Intake implements Subsystem {
 		}).requiring(motor);
 	}
 
+
 	public Command hold() {
 		return instant(() -> { // only runs one loop
 			intakeState = State.HOLDING;
 			motor.setPower(-holdingPower);
 		}).requiring(motor);
 	}
+
 
 	public Command outtake() {
 		return instant(() -> { // only runs one loop
@@ -136,16 +140,19 @@ public class Intake implements Subsystem {
 		return race(reverseMotorForClear(), waitMs(jamClearDuration)).then(intake());
 	}
 
+
 	// actually controls motor
 	private Command reverseMotorForClear() {
 		return Command.build() // continuous function
 				.setStart(() -> { // on first run
 					clearing = true;
 					motor.setPower(-jamClearingPower);
-				}).setDone(() -> false) // hold until interrupted
+				})
+				.setDone(() -> false) // hold until interrupted
 				.setEnd(endCondition -> clearing = false) // on end (OR INTERRUPT), clearing = false
 				.requiring(motor);
 	}
+
 
 	// runs detections
 	@Override
@@ -159,10 +166,10 @@ public class Intake implements Subsystem {
 		});
 	}
 
+
 	// code to detect jam based on state and motor power, current, and velocity
 	private void detectJam() {
-		boolean sus = // initial flag
-				state == State.INTAKING
+		boolean sus = intakeState == State.INTAKING
 				&& !clearing
 				&& intakeRunTimer.milliseconds() >= jamSpinUpDelay
 				&& Math.abs(motor.getPower()) >= jamMinPower
@@ -181,6 +188,7 @@ public class Intake implements Subsystem {
 			jammed = false;
 		}
 	}
+
 
 	// code to detect item based on distance sensor
 	private void detectItem() {
@@ -208,6 +216,7 @@ public class Intake implements Subsystem {
 		}
 	}
 
+
 	// telemetry for robot controller
 	@Override
 	public List<String> getSimpleTelemetry() {
@@ -220,6 +229,7 @@ public class Intake implements Subsystem {
 				"Power: " + String.format(Locale.US, "%.2f", motor.getPower())
 		);
 	}
+
 
 	// just spamming atp
 	@Override
@@ -256,41 +266,51 @@ public class Intake implements Subsystem {
 		this.autoJamClearingEnabled = enabled;
 	}
 
+
 	public boolean isAutoJamClearingEnabled() {
 		return autoJamClearingEnabled;
 	}
+
 
 	public void setHoldingPower(double power) {
 		this.holdingPower = Math.abs(clamp(power, -1.0, 1.0));
 	}
 
+
 	public void setIntakingPower(double power) {
 		this.intakingPower = Math.abs(clamp(power, -1.0, 1.0));
 	}
+
 
 	public void setOuttakingPower(double power) {
 		this.outtakingPower = Math.abs(clamp(power, -1.0, 1.0));
 	}
 
+
 	public State getState() {
 		return intakeState;
 	}
+
 
 	public double getMotorPower() {
 		return motor.getPower();
 	}
 
+
 	public boolean isJammed() {
 		return jammed;
 	}
+
 
 	public boolean isClearing() {
 		return clearing;
 	}
 
+
 	public boolean hasItem() {
 		return hasItem;
 	}
+
 
 	public double getItemDistance() {
 		return distanceSensor.getDistance(DistanceUnit.CM);

@@ -12,6 +12,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.subsystems.FlywheelShooter;
+import org.firstinspires.ftc.teamcode.subsystems.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -28,6 +29,7 @@ public class Robot {
 	// public DriveBase driveBase;
 	public Intake intake;
 	public FlywheelShooter flywheel;
+	public Gate gate;
 
 	public boolean isRobotCentric = false;
 
@@ -61,13 +63,16 @@ public class Robot {
 		scorePose = poses.of(56, 18, Math.toRadians(315));
 	}
 
+
 	private FollowerLog followerLog;
+
 
 	public Robot(OpMode opMode, boolean isRobotCentric) {
 		this.myOpMode = opMode;
 		this.telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 		// drivetrain = new DriveTrain(myOpMode);
 		intake = new Intake(myOpMode);
+		gate = new Gate(myOpMode);
 		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
 		follower = Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
 
@@ -81,9 +86,9 @@ public class Robot {
 
 		Scheduler.reset();
 		Scheduler.schedule(
-				intake.stop(), flywheel.stop(),
+				intake.stop(), flywheel.stop(), gate.stop(),
 				// drivetrain.stop(),
-				intake.periodic(), flywheel.periodic()
+				intake.periodic(), flywheel.periodic(), gate.periodic()
 				// drivetrain.periodic()
 		);
 
@@ -132,6 +137,7 @@ public class Robot {
 		// get telemetry from subsystems
 		lines.addAll(intake.getSimpleTelemetry());
 		lines.addAll(flywheel.getSimpleTelemetry());
+		lines.addAll(gate.getSimpleTelemetry());
 
 		telemetry.debug(lines.toArray(new String[0]));
 		telemetry.update(myOpMode.telemetry);

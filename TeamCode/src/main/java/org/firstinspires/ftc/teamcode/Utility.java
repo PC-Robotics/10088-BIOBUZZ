@@ -88,15 +88,28 @@ public final class Utility {
 
 
 	/**
-	 * Performs linear interpolation between two values.
+	 * Performs linear interpolation. Moving from a to b by amount t.
 	 *
-	 * @param v0 the starting value
-	 * @param v1 the ending value
-	 * @param t  the interpolation factor (0.0 to 1.0)
+	 * @param a the starting value
+	 * @param b the ending value
+	 * @param t the interpolation factor [0, 1]
 	 * @return the interpolated value
 	 */
-	public static double lerp(double v0, double v1, double t) {
-		return (1 - t) * v0 + t * v1;
+	public static double lerp(double a, double b, double t) {
+		return (1 - t) * a + t * b;
+	}
+
+
+	/**
+	 * Performs Inverse linear interpolation. How far is x between a and b?
+	 *
+	 * @param a the starting value
+	 * @param b the ending value
+	 * @param x the value to measure. x should be in [a, b]
+	 * @return the interpolation factor [0, 1]
+	 */
+	public static double inverseLerp(double a, double b, double x) {
+		return (x - a) / (b - a);
 	}
 
 
@@ -113,6 +126,7 @@ public final class Utility {
 		return new double[]{Math.hypot(dx, dy), Math.atan2(dy, dx)};
 	}
 
+
 	/**
 	 * Calculates the Euclidean distance between two Pose objects.
 	 *
@@ -126,6 +140,7 @@ public final class Utility {
 		return Math.hypot(dx, dy);
 	}
 
+
 	/**
 	 * Calculates the angle from one Pose to another.
 	 *
@@ -137,5 +152,37 @@ public final class Utility {
 		double dx = p2.x() - p1.x();
 		double dy = p2.y() - p1.y();
 		return Math.atan2(dy, dx);
+	}
+
+
+	/**
+	 * Simple lowpass filter to smooth out noise in signals.
+	 */
+	static class LowpassFilter {
+		private final double[] buffer;
+		private int i = 0;
+		private int count = 0;
+
+
+		public LowpassFilter(int windowSize) {
+			if (windowSize < 1) throw new IllegalArgumentException("window must be >= 1");
+			buffer = new double[windowSize];
+		}
+
+
+		public double update(double sample) {
+			buffer[i] = sample;
+			i = (i + 1) % buffer.length;
+			if (count < buffer.length) count++;
+			double sum = 0;
+			for (int j = 0; j < count; j++) sum += buffer[j];
+			return sum / count;
+		}
+
+
+		public void reset() {
+			i = 0;
+			count = 0;
+		}
 	}
 }

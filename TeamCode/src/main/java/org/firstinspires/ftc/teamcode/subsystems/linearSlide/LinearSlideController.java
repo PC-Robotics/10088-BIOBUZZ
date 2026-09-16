@@ -1,6 +1,8 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.subsystems.linearSlide;
 
 import com.pedropathing.utils.Timer;
+
+import org.firstinspires.ftc.teamcode.Utility;
 
 import java.util.function.DoubleSupplier;
 

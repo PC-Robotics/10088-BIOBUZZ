@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.shooting;
+package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 
 // selects which ShotCalculator strategy the shooter uses to compute target RPM
 public enum ShotCalculatorMode {

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.infinite;
@@ -15,13 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-import org.firstinspires.ftc.teamcode.subsystems.shooting.FlywheelController;
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculator;
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorDistance;
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorManualCloseFar;
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorMode;
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorProportional;
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotSolution;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 
 import java.util.EnumMap;
 import java.util.List;

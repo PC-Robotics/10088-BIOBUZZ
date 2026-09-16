@@ -1,10 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorManualCloseFar;
+import org.firstinspires.ftc.teamcode.InitMenu;
+import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.flywheel.ShotCalculatorManualCloseFar;
+import org.firstinspires.ftc.teamcode.subsystems.linearSlide.LinearSlide;
 
 @TeleOp(name = "Basic TeleOp")
 public class BasicTeleOp extends OpMode {

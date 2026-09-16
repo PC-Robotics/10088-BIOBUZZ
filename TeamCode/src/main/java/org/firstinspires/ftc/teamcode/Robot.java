@@ -11,11 +11,12 @@ import com.pedropathing.utils.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.subsystems.FlywheelShooter;
-import org.firstinspires.ftc.teamcode.subsystems.Gate;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
-import org.firstinspires.ftc.teamcode.subsystems.shooting.ShotCalculatorMode;
+import org.firstinspires.ftc.teamcode.subsystems.flywheel.FlywheelShooter;
+import org.firstinspires.ftc.teamcode.subsystems.gate.Gate;
+import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.flywheel.ShotCalculatorMode;
+import org.firstinspires.ftc.teamcode.subsystems.linearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.ArrayList;

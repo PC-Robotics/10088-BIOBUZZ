@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.subsystems.shooting;
+package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 
 import static java.lang.Math.signum;
 
-import com.pedropathing.controllers.Controller;
 import com.pedropathing.controllers.filters.KalmanFilter;
 
 public class FlywheelController {

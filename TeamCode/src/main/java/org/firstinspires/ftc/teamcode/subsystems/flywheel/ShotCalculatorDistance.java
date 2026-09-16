@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.shooting;
+package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 
 import static org.firstinspires.ftc.teamcode.Utility.lerp;
 import static org.firstinspires.ftc.teamcode.Utility.polarTo;

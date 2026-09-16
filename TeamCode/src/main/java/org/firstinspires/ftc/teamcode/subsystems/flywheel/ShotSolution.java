@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.shooting;
+package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 
 public final class ShotSolution {
 	private final double distance;

@@ -158,7 +158,7 @@ public final class Utility {
 	/**
 	 * Simple lowpass filter to smooth out noise in signals.
 	 */
-	static class LowpassFilter {
+	public static class LowpassFilter {
 		private final double[] buffer;
 		private int i = 0;
 		private int count = 0;

@@ -112,8 +112,4 @@ public class FlywheelController {
 	public double getFilteredRPM() {
 		return kalmanFilter.state();
 	}
-
-	public double getTarget() {
-		return target;
-	}
 }

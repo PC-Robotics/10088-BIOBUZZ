@@ -11,7 +11,6 @@ import static org.firstinspires.ftc.teamcode.Utility.getMotorVelocityRPM;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -81,9 +80,9 @@ public class Intake implements Subsystem {
 
 	public Intake(OpMode opMode) {
 		motor = opMode.hardwareMap.get(DcMotorEx.class, "intake");
-		motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+		motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+		motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+		motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
 		distanceSensor = opMode.hardwareMap.get(DistanceSensor.class, "intakeSensor");
 	}

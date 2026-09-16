@@ -11,7 +11,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -90,16 +89,17 @@ public class FlywheelShooter implements Subsystem {
 		calculators.values().forEach(ShotCalculator::init);
 		manualCloseFarCalculator.setPreset(ShotCalculatorManualCloseFar.ShotPreset.CLOSE);
 
+		// TODO - make sure the correct one is backwards
 		leftMotor = opMode.hardwareMap.get(DcMotorEx.class, "flywheelleft");
-		leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-		leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+		leftMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+		leftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+		leftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
 		rightMotor = opMode.hardwareMap.get(DcMotorEx.class, "flywheelright");
 		rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-		rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-		rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+		rightMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+		rightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+		rightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
 		light = opMode.hardwareMap.get(ServoImplEx.class, "light");
 		light.setPosition(LedColor.OFF.getValue());

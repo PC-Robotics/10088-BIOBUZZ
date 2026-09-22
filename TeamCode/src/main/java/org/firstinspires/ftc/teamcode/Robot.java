@@ -12,6 +12,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.flywheel.FlywheelShooter;
 import org.firstinspires.ftc.teamcode.subsystems.gate.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -28,7 +29,7 @@ public class Robot {
 	private OpMode myOpMode;   // gain access to methods in the calling OpMode (iterative or linear).
 	public TelemetryManager telemetry;
 
-	// public DriveBase driveBase;
+	public Drivetrain drivetrain;
 	public Intake intake;
 	public FlywheelShooter flywheel;
 	public LinearSlide slide;
@@ -74,12 +75,12 @@ public class Robot {
 	public Robot(OpMode opMode, boolean isRobotCentric) {
 		this.myOpMode = opMode;
 		this.telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-		// drivetrain = new DriveTrain(myOpMode);
+		drivetrain = new Drivetrain(myOpMode);
 		intake = new Intake(myOpMode);
 		gate = new Gate(myOpMode);
 		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
 		slide = new LinearSlide(myOpMode);
-		subsystems = new Subsystem[]{intake, gate, flywheel, slide};
+		subsystems = new Subsystem[]{drivetrain, intake, gate, flywheel, slide};
 		follower = Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
 
 		hubs = myOpMode.hardwareMap.getAll(LynxModule.class);
@@ -141,6 +142,7 @@ public class Robot {
 		}
 
 		// get telemetry from subsystems
+		lines.addAll(drivetrain.getSimpleTelemetry());
 		lines.addAll(intake.getSimpleTelemetry());
 		lines.addAll(flywheel.getSimpleTelemetry());
 		lines.addAll(slide.getSimpleTelemetry());

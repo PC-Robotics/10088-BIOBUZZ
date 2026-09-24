@@ -267,6 +267,11 @@ public class Intake implements Subsystem {
 	}
 
 
+	public void toggleAutoJamClearingEnabled() {
+		this.autoJamClearingEnabled = !this.autoJamClearingEnabled;
+	}
+
+
 	public boolean isAutoJamClearingEnabled() {
 		return autoJamClearingEnabled;
 	}

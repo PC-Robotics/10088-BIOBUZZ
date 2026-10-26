@@ -187,11 +187,11 @@ public class FlywheelShooter implements Subsystem {
 	@Override
 	public List<String> getSimpleTelemetry() {
 		return List.of(
-				"Flywheel State: " + flywheelState,
-				"Calculator Mode: " + shotCalculatorMode,
-				"Manual Preset: " + manualCloseFarCalculator.getPreset(),
-				"Ready To Shoot: " + isReadyToShoot(),
-				"Power: " + String.format(Locale.US, "%.2f", commandedPower)
+				"Flywheel State:" + flywheelState,
+				"Calculator Mode:" + shotCalculatorMode,
+				"Manual Preset:" + manualCloseFarCalculator.getPreset(),
+				"Ready To Shoot:" + isReadyToShoot(),
+				"Power:" + String.format(Locale.US, "%.2f", commandedPower)
 		);
 	}
 
@@ -199,19 +199,19 @@ public class FlywheelShooter implements Subsystem {
 	@Override
 	public List<String> getDetailedTelemetry() {
 		return List.of(
-				"Flywheel State: " + flywheelState,
-				"Controller State: " + controller.getState(),
-				"Calculator Mode: " + shotCalculatorMode,
-				"Manual Preset: " + manualCloseFarCalculator.getPreset(),
-				"Commanded Power: " + String.format(Locale.US, "%.2f", commandedPower),
-				"Current RPM: " + String.format(Locale.US, "%.2f", measuredRPM()),
-				"Filtered RPM: " + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getFilteredRPM() : Double.NaN),
-				"Target RPM: " + String.format(Locale.US, "%.2f", targetRPM),
-				"Error: " + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getError() : Double.NaN),
-				"Shot Valid: " + currentShotSolution.isValid(),
-				"Shot Distance: " + String.format(Locale.US, "%.2f", currentShotSolution.getDistance()),
-				"Ready To Shoot: " + isReadyToShoot(),
-				"LED Color: " + commandedLedColor
+				"Flywheel State:" + flywheelState,
+				"Controller State:" + controller.getState(),
+				"Calculator Mode:" + shotCalculatorMode,
+				"Manual Preset:" + manualCloseFarCalculator.getPreset(),
+				"Commanded Power:" + String.format(Locale.US, "%.2f", commandedPower),
+				"Current RPM:" + String.format(Locale.US, "%.2f", measuredRPM()),
+				"Filtered RPM:" + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getFilteredRPM() : Double.NaN),
+				"Target RPM:" + String.format(Locale.US, "%.2f", targetRPM),
+				"Error:" + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getError() : Double.NaN),
+				"Shot Valid:" + currentShotSolution.isValid(),
+				"Shot Distance:" + String.format(Locale.US, "%.2f", currentShotSolution.getDistance()),
+				"Ready To Shoot:" + isReadyToShoot(),
+				"LED Color:" + commandedLedColor
 		);
 	}
 

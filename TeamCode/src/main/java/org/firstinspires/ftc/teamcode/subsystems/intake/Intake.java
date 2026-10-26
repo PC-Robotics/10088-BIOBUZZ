@@ -38,24 +38,24 @@ public class Intake implements Subsystem {
 	private final DistanceSensor distanceSensor;
 
 	// current mode label, set by the mode commands; used for detection gating + telemetry
-	private State intakeState = State.STOPPED;
+	public static State intakeState = State.STOPPED;
 
 	// powers are inverted in code
-	private double holdingPower = 0.05;
-	private double intakingPower = 1.0;
-	private double outtakingPower = 0.3;
-	private double jamClearingPower = 0.7;
+	public static double holdingPower = 0.05;
+	public static double intakingPower = 1.0;
+	public static double outtakingPower = 0.3;
+	public static double jamClearingPower = 0.7;
 
 	// jamming
-	private double jamCurrentThreshold = 5.0; // amps
-	private double jamVelocityThreshold = 50.0; // rpm
-	private double jamTimeThreshold = 250.0; // ms
-	private double jamMinPower = 0.4; // in [0, 1]
-	private double jamSpinUpDelay = 500.0; // ms
+	public static double jamCurrentThreshold = 5.0; // amps
+	public static double jamVelocityThreshold = 50.0; // rpm
+	public static double jamTimeThreshold = 250.0; // ms
+	public static double jamMinPower = 0.4; // in [0, 1]
+	public static double jamSpinUpDelay = 500.0; // ms
 
 	// jam clearing
-	private double jamClearDuration = 250.0; // ms
-	private boolean autoJamClearingEnabled = false;
+	public static double jamClearDuration = 250.0; // ms
+	public static boolean autoJamClearingEnabled = false;
 
 	private boolean jamCandidate = false;
 	private boolean jammed = false;
@@ -67,15 +67,15 @@ public class Intake implements Subsystem {
 	// item detection
 	private boolean hasItem = false;
 	private boolean itemCandidate = false;
-	private double itemDistanceThreshold = 5.0; // cm
+	public static double itemDistanceThreshold = 5.0; // cm
 
 	// item must be seen continuously for this long
-	private double itemDetectionTime = 60.0; // ms
+	public static double itemDetectionTime = 60.0; // ms
 	private final ElapsedTime itemDetectionTimer = new ElapsedTime();
 
 	// single polling timer
-	private double distanceSensorFastPollInterval = 20.0;  // ms
-	private double distanceSensorSlowPollInterval = 200.0; // ms
+	public static double distanceSensorFastPollInterval = 20.0;  // ms
+	public static double distanceSensorSlowPollInterval = 200.0; // ms
 	private final ElapsedTime distanceSensorPollTimer = new ElapsedTime();
 
 
@@ -235,29 +235,29 @@ public class Intake implements Subsystem {
 	@Override
 	public List<String> getDetailedTelemetry() {
 		return List.of(
-				"Intake State: " + intakeState,
-				"Motor Power: " + String.format(Locale.US, "%.2f", motor.getPower()),
-				"Motor Current (A): " + String.format(Locale.US, "%.2f", motor.getCurrent(CurrentUnit.AMPS)),
-				"Motor Velocity (RPM): " + String.format(Locale.US, "%.2f", getMotorVelocityRPM(motor)),
-				"Auto Jam Clearing Enabled: " + autoJamClearingEnabled,
-				"Clearing: " + clearing,
-				"Has Item: " + hasItem,
-				"Item Candidate: " + itemCandidate,
-				"Last Item Distance (cm): " + String.format(Locale.US, "%.2f", distanceSensor.getDistance(DistanceUnit.CM)),
-				"Item Distance Threshold (cm): " + String.format(Locale.US, "%.2f", itemDistanceThreshold),
-				"Item Detection Time (ms): " + String.format(Locale.US, "%.1f", itemDetectionTime),
-				"Item Fast Poll Interval (ms): " + String.format(Locale.US, "%.1f", distanceSensorFastPollInterval),
-				"Item Slow Poll Interval (ms): " + String.format(Locale.US, "%.1f", distanceSensorSlowPollInterval),
-				"Item Detect Timer (ms): " + String.format(Locale.US, "%.1f", itemDetectionTimer.milliseconds()),
-				"Item Poll Timer (ms): " + String.format(Locale.US, "%.1f", distanceSensorPollTimer.milliseconds()),
-				"Jam Candidate: " + jamCandidate,
-				"Jammed: " + jammed,
-				"Jam Timer (ms): " + String.format(Locale.US, "%.1f", jamTimer.milliseconds()),
-				"Jam Current Threshold: " + String.format(Locale.US, "%.2f", jamCurrentThreshold),
-				"Jam Velocity Threshold (RPM): " + String.format(Locale.US, "%.2f", jamVelocityThreshold),
-				"Jam Time Threshold (ms): " + String.format(Locale.US, "%.1f", jamTimeThreshold),
-				"Jam Spin-Up Delay (ms): " + String.format(Locale.US, "%.1f", jamSpinUpDelay),
-				"Intake Run Timer (ms): " + String.format(Locale.US, "%.1f", intakeRunTimer.milliseconds())
+				"Intake State:" + intakeState,
+				"Motor Power:" + String.format(Locale.US, "%.2f", motor.getPower()),
+				"Motor Current (A):" + String.format(Locale.US, "%.2f", motor.getCurrent(CurrentUnit.AMPS)),
+				"Motor Velocity (RPM):" + String.format(Locale.US, "%.2f", getMotorVelocityRPM(motor)),
+				"Auto Jam Clearing Enabled:" + autoJamClearingEnabled,
+				"Clearing:" + clearing,
+				"Has Item:" + hasItem,
+				"Item Candidate:" + itemCandidate,
+				"Last Item Distance (cm):" + String.format(Locale.US, "%.2f", distanceSensor.getDistance(DistanceUnit.CM)),
+				"Item Distance Threshold (cm):" + String.format(Locale.US, "%.2f", itemDistanceThreshold),
+				"Item Detection Time (ms):" + String.format(Locale.US, "%.1f", itemDetectionTime),
+				"Item Fast Poll Interval (ms):" + String.format(Locale.US, "%.1f", distanceSensorFastPollInterval),
+				"Item Slow Poll Interval (ms):" + String.format(Locale.US, "%.1f", distanceSensorSlowPollInterval),
+				"Item Detect Timer (ms):" + String.format(Locale.US, "%.1f", itemDetectionTimer.milliseconds()),
+				"Item Poll Timer (ms):" + String.format(Locale.US, "%.1f", distanceSensorPollTimer.milliseconds()),
+				"Jam Candidate:" + jamCandidate,
+				"Jammed:" + jammed,
+				"Jam Timer (ms):" + String.format(Locale.US, "%.1f", jamTimer.milliseconds()),
+				"Jam Current Threshold:" + String.format(Locale.US, "%.2f", jamCurrentThreshold),
+				"Jam Velocity Threshold (RPM):" + String.format(Locale.US, "%.2f", jamVelocityThreshold),
+				"Jam Time Threshold (ms):" + String.format(Locale.US, "%.1f", jamTimeThreshold),
+				"Jam Spin-Up Delay (ms):" + String.format(Locale.US, "%.1f", jamSpinUpDelay),
+				"Intake Run Timer (ms):" + String.format(Locale.US, "%.1f", intakeRunTimer.milliseconds())
 		);
 	}
 

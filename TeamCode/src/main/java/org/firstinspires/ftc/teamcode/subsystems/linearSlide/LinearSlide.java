@@ -111,11 +111,11 @@ public class LinearSlide implements Subsystem {
 	@Override
 	public List<String> getSimpleTelemetry() {
 		return List.of(
-				"Slide Position: " + slidePosition,
-				"Control Mode: " + controlMode,
-				"Target (ticks): " + slidePosition.ticks,
-				"Position (ticks): " + motor.getCurrentPosition(),
-				"kG: " + String.format(Locale.US, "%.3f", controller.getKg())
+				"Slide Position:" + slidePosition,
+				"Control Mode:" + controlMode,
+				"Target (ticks):" + slidePosition.ticks,
+				"Position (ticks):" + motor.getCurrentPosition(),
+				"kG:" + String.format(Locale.US, "%.3f", controller.getKg())
 		);
 	}
 

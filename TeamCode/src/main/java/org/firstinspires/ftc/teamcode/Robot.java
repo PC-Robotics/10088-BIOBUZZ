@@ -133,11 +133,11 @@ public class Robot {
 	public void reloadTelemetry() {
 		List<String> lines = new ArrayList<>();
 
-		lines.add("Alliance: " + alliance);
-		lines.add("Pose: " + currentPose);
-		lines.add("Loop Time (ms): " + String.format(Locale.US, "%.2f", loopTime));
+		lines.add("Alliance:" + alliance);
+		lines.add("Pose:" + currentPose);
+		lines.add("Loop Time (ms):" + String.format(Locale.US, "%.2f", loopTime));
 		if (followerLog != null) {
-			lines.add("Follow State: " + followerLog.followState());
+			lines.add("Follow State:" + followerLog.followState());
 		}
 
 		// get telemetry from opmode

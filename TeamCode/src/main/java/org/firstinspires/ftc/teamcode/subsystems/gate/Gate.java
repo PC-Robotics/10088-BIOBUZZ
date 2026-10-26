@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems.gate;
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.instant;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import java.util.List;
 import java.util.Locale;
 
+@Configurable
 public class Gate implements Subsystem {
 	public enum State {
 		OPEN, // meaning balls can pass through
@@ -20,10 +22,10 @@ public class Gate implements Subsystem {
 
 
 	public ServoImplEx servo;
-	private State gateState = State.CLOSED;
+	public static State gateState = State.CLOSED;
 
-	private double openPosition = 0.7;
-	private double closedPosition = 0.3;
+	public static double openPosition = 0.7;
+	public static double closedPosition = 0.3;
 
 
 	public Gate(OpMode opMode) {
@@ -62,7 +64,7 @@ public class Gate implements Subsystem {
 	@Override
 	public List<String> getSimpleTelemetry() {
 		return List.of(
-				"Gate State: " + gateState
+				"Gate State:" + gateState
 		);
 	}
 
@@ -70,8 +72,8 @@ public class Gate implements Subsystem {
 	@Override
 	public List<String> getDetailedTelemetry() {
 		return List.of(
-				"Gate State: " + gateState,
-				"Servo Position: " + String.format(Locale.US, "%.2f", servo.getPosition())
+				"Gate State:" + gateState,
+				"Servo Position:" + String.format(Locale.US, "%.2f", servo.getPosition())
 		);
 	}
 }

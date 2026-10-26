@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 
 import static java.lang.Math.signum;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.controllers.filters.KalmanFilter;
 
+@Configurable
 public class FlywheelController {
 	public enum State {
 		SPINUP,
@@ -12,17 +14,17 @@ public class FlywheelController {
 	}
 
 
-	public static final double MAX_POWER = 0.98;
+	public static double MAX_POWER = 0.98;
 
 	// thresholds for state transitions
-	public static final double READY_ENTER = 0.95;
-	public static final double READY_EXIT = 0.9;
-	public static final double COAST_ENTER = 1.1;
-	public static final double COAST_EXIT = 1.05;
+	public static double READY_ENTER = 0.95;
+	public static double READY_EXIT = 0.9;
+	public static double COAST_ENTER = 1.1;
+	public static double COAST_EXIT = 1.05;
 
 	// kalman filter
-	public static final double STATE_STDDEV = 2;
-	public static final double MEASUREMENT_STDDEV = 0.2;
+	public static double STATE_STDDEV = 2;
+	public static double MEASUREMENT_STDDEV = 0.2;
 
 	// TODO - tune
 	public static double kP = 0.0;

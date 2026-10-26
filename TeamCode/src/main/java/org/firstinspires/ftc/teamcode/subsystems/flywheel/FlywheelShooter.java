@@ -52,8 +52,8 @@ public class FlywheelShooter implements Subsystem {
 	}
 
 
-	public DcMotorEx leftMotor;
-	public DcMotorEx rightMotor;
+	public DcMotorEx motor;
+	public ServoImplEx hood;
 	public ServoImplEx light;
 
 	private final FlywheelController controller = new FlywheelController();
@@ -84,16 +84,13 @@ public class FlywheelShooter implements Subsystem {
 		manualCloseFarCalculator.setPreset(ShotCalculatorManualCloseFar.ShotPreset.CLOSE);
 
 		// TODO - make sure the correct one is backwards
-		leftMotor = opMode.hardwareMap.get(DcMotorEx.class, "flywheelleft");
-		leftMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-		leftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-		leftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+		motor = opMode.hardwareMap.get(DcMotorEx.class, "flywheel");
+		motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+		motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+		motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-		rightMotor = opMode.hardwareMap.get(DcMotorEx.class, "flywheelright");
-		rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-		rightMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-		rightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-		rightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+		hood = opMode.hardwareMap.get(ServoImplEx.class, "hood");
+		hood.setPosition(0.1);
 
 		light = opMode.hardwareMap.get(ServoImplEx.class, "light");
 		light.setPosition(LedColor.OFF.getValue());
@@ -111,8 +108,7 @@ public class FlywheelShooter implements Subsystem {
 				}).setExecute(() -> {
 					controller.setTarget(targetRPM);
 					commandedPower = controller.update(measuredRPM());
-					leftMotor.setPower(commandedPower);
-					rightMotor.setPower(commandedPower);
+					motor.setPower(commandedPower);
 
 					if (!currentShotSolution.isValid()) {
 						commandedLedColor = LedColor.YELLOW;
@@ -123,13 +119,13 @@ public class FlywheelShooter implements Subsystem {
 				})
 				.setDone(() -> false)
 				.setEnd(endCondition -> stopAction())
-				.requiring(leftMotor, rightMotor);
+				.requiring(motor);
 	}
 
 
 	@Override
 	public Command stop() {
-		return instant(this::stopAction).requiring(leftMotor, rightMotor);
+		return instant(this::stopAction).requiring(motor);
 	}
 
 
@@ -137,8 +133,7 @@ public class FlywheelShooter implements Subsystem {
 		flywheelState = State.STOPPED;
 		commandedPower = 0.0;
 		commandedLedColor = LedColor.OFF;
-		leftMotor.setPower(0.0);
-		rightMotor.setPower(0.0);
+		motor.setPower(0.0);
 		light.setPosition(LedColor.OFF.getValue());
 	}
 
@@ -156,7 +151,7 @@ public class FlywheelShooter implements Subsystem {
 
 
 	private double measuredRPM() {
-		return (getMotorVelocityRPM(leftMotor) + getMotorVelocityRPM(rightMotor)) * 0.5;
+		return (getMotorVelocityRPM(motor));
 	}
 
 

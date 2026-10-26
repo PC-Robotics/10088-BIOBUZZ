@@ -26,7 +26,9 @@ public class FlywheelBasicTester extends OpMode {
 	public static int targetRPM = 0;
 
 	private FlywheelController controller = new FlywheelController();
-	public static double hoodPosition = 0.5;
+
+	public static double hoodZeroPosition = 0.5;
+	public static double hoodPosition = 0.0;
 
 	private TelemetryManager panelsTelemetry;
 
@@ -42,7 +44,7 @@ public class FlywheelBasicTester extends OpMode {
 		motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
 		hood = hardwareMap.get(ServoImplEx.class, "hood");
-		hood.setPosition(0.5);
+		hood.setPosition(hoodZeroPosition);
 	}
 
 	@Override
@@ -61,11 +63,15 @@ public class FlywheelBasicTester extends OpMode {
 			motor.setPower(controller.update(measuredRPM));
 		}
 
+		hood.setPosition(hoodZeroPosition + hoodPosition);
+		double angle = hoodPosition * 1800 / 6.1765; // 1800 degrees from 0 to 1, 17:105 gear ratio.
+
 		panelsTelemetry.addData("Measured RPM", measuredRPM);
 		panelsTelemetry.addData("Target RPM", targetRPM);
 		panelsTelemetry.addData("Commanded Power", motor.getPower());
 		panelsTelemetry.addData("Mode", mode);
 		panelsTelemetry.addData("Hood Position", hoodPosition);
+		panelsTelemetry.addData("Hood Angle", angle);
 		panelsTelemetry.addData("Current", motor.getCurrent(CurrentUnit.AMPS));
 	}
 }

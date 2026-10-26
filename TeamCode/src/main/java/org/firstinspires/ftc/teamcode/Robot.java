@@ -53,8 +53,6 @@ public class Robot {
 	public Pose currentPose;
 	public static Pose endPose;
 
-	private static final double FIELD_MIRROR_LINE = 72.0;
-
 	private static PoseFactory poses = PoseFactory.radians();
 
 	// static variables are saved between auto and teleop so this variable helps us do that
@@ -75,12 +73,18 @@ public class Robot {
 	public Robot(OpMode opMode, boolean isRobotCentric) {
 		this.myOpMode = opMode;
 		this.telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-		drivetrain = new Drivetrain(myOpMode);
-		intake = new Intake(myOpMode);
-		gate = new Gate(myOpMode);
-		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
-		slide = new LinearSlide(myOpMode);
-		subsystems = new Subsystem[]{drivetrain, intake, gate, flywheel, slide};
+//		drivetrain = new Drivetrain(myOpMode);
+//		intake = new Intake(myOpMode);
+//		gate = new Gate(myOpMode);
+//		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
+//		slide = new LinearSlide(myOpMode);
+		subsystems = new Subsystem[]{
+//				drivetrain,
+//				intake,
+//				gate,
+//				flywheel,
+//				slide
+		};
 		follower = Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
 
 		hubs = myOpMode.hardwareMap.getAll(LynxModule.class);
@@ -142,11 +146,9 @@ public class Robot {
 		}
 
 		// get telemetry from subsystems
-		lines.addAll(drivetrain.getSimpleTelemetry());
-		lines.addAll(intake.getSimpleTelemetry());
-		lines.addAll(flywheel.getSimpleTelemetry());
-		lines.addAll(slide.getSimpleTelemetry());
-		lines.addAll(gate.getSimpleTelemetry());
+		for (Subsystem s : subsystems) {
+			lines.addAll(s.getSimpleTelemetry());
+		}
 
 		telemetry.debug(lines.toArray(new String[0]));
 		telemetry.update(myOpMode.telemetry);
@@ -170,11 +172,6 @@ public class Robot {
 
 
 	public void setAlliance(Alliance alliance) {
-		if (Robot.alliance != alliance) {
-			poses = poses.mirrorX(FIELD_MIRROR_LINE);
-			buildPoses();
-		}
-
 		Robot.alliance = alliance;
 	}
 

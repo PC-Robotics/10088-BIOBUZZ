@@ -11,19 +11,8 @@ import org.firstinspires.ftc.teamcode.pedro.procedures.Tests;
 
 // TODO - Fill out all tuning
 public class Tuning {
-    // Tuners go here
     @Tuner
-    public static Procedure mecanumTuner() {
-	    return new MecanumTuner();
+    public static Procedure tests() {
+	    return new Tests(hardwareMap -> new Mecanum(hardwareMap, Constants.drivetrainConfig), null, null);
     }
-//
-//	@Tuner
-//	public static Procedure pinpointTuner() {
-//		return new PinpointTuner();
-//	}
-//
-//	@Tuner
-//	public static Procedure tests() {
-//		return new Tests(hardwareMap -> new Mecanum(hardwareMap, Constants.drivetrainConfig), null, null);
-//	}
 }

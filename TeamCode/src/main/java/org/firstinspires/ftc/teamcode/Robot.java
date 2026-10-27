@@ -85,7 +85,7 @@ public class Robot {
 //				flywheel,
 //				slide
 		};
-		follower = Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
+		follower = null; // Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
 
 		hubs = myOpMode.hardwareMap.getAll(LynxModule.class);
 		for (LynxModule h : hubs) {

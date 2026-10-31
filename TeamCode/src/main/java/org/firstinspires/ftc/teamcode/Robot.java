@@ -17,7 +17,6 @@ import org.firstinspires.ftc.teamcode.subsystems.flywheel.FlywheelShooter;
 import org.firstinspires.ftc.teamcode.subsystems.gate.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.flywheel.ShotCalculatorMode;
-import org.firstinspires.ftc.teamcode.subsystems.linearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class Robot {
 	public Drivetrain drivetrain;
 	public Intake intake;
 	public FlywheelShooter flywheel;
-	public LinearSlide slide;
 	public Gate gate;
 	private Subsystem[] subsystems;
 
@@ -77,13 +75,11 @@ public class Robot {
 //		intake = new Intake(myOpMode);
 //		gate = new Gate(myOpMode);
 //		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
-//		slide = new LinearSlide(myOpMode);
 		subsystems = new Subsystem[]{
 //				drivetrain,
 //				intake,
 //				gate,
 //				flywheel,
-//				slide
 		};
 		follower = null; // Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
 

@@ -12,9 +12,23 @@ apply plugin: 'com.android.application'
 
 // Custom definitions may go here
 
+// Sloth Load
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url "https://repo.dairy.foundation/releases" }
+    }
+    dependencies {
+        classpath "dev.frozenmilk:Load:0.3.2"
+    }
+}
+
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+
+apply plugin: 'dev.frozenmilk.sinister.sloth.load' // Sloth Load
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -26,4 +40,14 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+
+    implementation "dev.frozenmilk.sinister:Sloth:0.3.2" // Sloth (very fast code loading)
+    implementation "com.bylazar.sloth:fullpanels:0.3.2+1.0.13" // Panels for Sloth
+
+    implementation "com.pedropathing.ivy:pedro:1.1.1" // Pedropathing Ivy (commands)
+
+    implementation "org.solverslib:core:0.3.6" // SolversLib core (for photon)
+    implementation "org.solverslib:photon:0.3.6" // Photon (very fast loop times)
+
+    implementation "com.opencsv:opencsv:5.12.0" // OpenCSV (reads CSV files)
 }

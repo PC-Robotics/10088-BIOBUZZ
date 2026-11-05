@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.gate;
+package org.firstinspires.ftc.teamcode.subsystems.flowerIntake;
 
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.instant;
@@ -14,22 +14,22 @@ import java.util.List;
 import java.util.Locale;
 
 @Configurable
-public class Gate implements Subsystem {
+public class FlowerIntake implements Subsystem {
 	public enum State {
-		OPEN, // meaning balls can pass through
-		CLOSED
+		DOWN,
+		UP
 	}
 
 
 	public ServoImplEx servo;
-	public static State gateState = State.CLOSED;
+	public static State state = State.UP;
 
 	public static double openPosition = 0.7;
 	public static double closedPosition = 0.3;
 
 
-	public Gate(OpMode opMode) {
-		servo = opMode.hardwareMap.get(ServoImplEx.class, "gate");
+	public FlowerIntake(OpMode opMode) {
+		servo = opMode.hardwareMap.get(ServoImplEx.class, "flowerIntake");
 		servo.setDirection(ServoImplEx.Direction.FORWARD);
 	}
 
@@ -37,7 +37,7 @@ public class Gate implements Subsystem {
 	public Command open() {
 		return instant(() -> {
 			servo.setPosition(openPosition);
-			gateState = State.OPEN;
+			state = State.DOWN;
 		}).requiring(servo);
 	}
 
@@ -45,13 +45,13 @@ public class Gate implements Subsystem {
 	public Command close() {
 		return instant(() -> {
 			servo.setPosition(closedPosition);
-			gateState = State.CLOSED;
+			state = State.UP;
 		}).requiring(servo);
 	}
 
 
 	public Command toggle() {
-		return conditional(() -> gateState == State.OPEN, close(), open());
+		return conditional(() -> state == State.DOWN, close(), open());
 	}
 
 
@@ -64,7 +64,7 @@ public class Gate implements Subsystem {
 	@Override
 	public List<String> getSimpleTelemetry() {
 		return List.of(
-				"Gate State:" + gateState
+				"Flower Intake State:" + state
 		);
 	}
 
@@ -72,7 +72,7 @@ public class Gate implements Subsystem {
 	@Override
 	public List<String> getDetailedTelemetry() {
 		return List.of(
-				"Gate State:" + gateState,
+				"Flower Intake State:" + state,
 				"Servo Position:" + String.format(Locale.US, "%.2f", servo.getPosition())
 		);
 	}

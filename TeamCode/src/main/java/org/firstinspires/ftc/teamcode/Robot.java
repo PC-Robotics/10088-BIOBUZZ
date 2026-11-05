@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.flowerIntake.FlowerIntake;
 import org.firstinspires.ftc.teamcode.subsystems.flywheel.FlywheelShooter;
-import org.firstinspires.ftc.teamcode.subsystems.gate.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class Robot {
 	public Drivetrain drivetrain;
 	public Intake intake;
 	public FlywheelShooter flywheel;
-	public Gate gate;
+	public FlowerIntake flowerIntake;
 	private Subsystem[] subsystems;
 
 	public boolean isRobotCentric = false;
@@ -72,12 +72,12 @@ public class Robot {
 		this.telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 //		drivetrain = new Drivetrain(myOpMode);
 //		intake = new Intake(myOpMode);
-//		gate = new Gate(myOpMode);
+//		flowerIntake = new FlowerIntake(myOpMode);
 //		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
 		subsystems = new Subsystem[]{
 //				drivetrain,
 //				intake,
-//				gate,
+//				flowerIntake,
 //				flywheel,
 		};
 		follower = null; // Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);;

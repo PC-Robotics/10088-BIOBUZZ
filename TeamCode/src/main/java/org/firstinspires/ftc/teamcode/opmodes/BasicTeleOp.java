@@ -78,25 +78,4 @@ public class BasicTeleOp extends OpMode {
 			robot.flywheel.setManualPreset(ShotCalculatorManualCloseFar.ShotPreset.CLOSE);
 		}
 	}
-
-
-	private void linearSlideControl() {
-		if (gamepad2.psWasPressed()) {
-			robot.slide.toggleManualMode();
-			gamepad2.rumbleBlips(1); // haptic confirmation of the mode switch
-		}
-		if (robot.slide.getControlMode() == LinearSlide.ControlMode.MANUAL) {
-			gamepad2.setLedColor(1.0, 0.0, 0.0, Gamepad.LED_DURATION_CONTINUOUS); // red
-			int dir = (gamepad2.dpad_up ? 1 : 0) - (gamepad2.dpad_down ? 1 : 0);
-			robot.slide.manualMove(dir);
-		} else {
-			gamepad2.setLedColor(0.0, 1.0, 0.0, Gamepad.LED_DURATION_CONTINUOUS); // green
-			if (gamepad2.triangleWasPressed()) {
-				robot.slide.goToDropHeight();
-			}
-			if (gamepad2.crossWasPressed()) {
-				robot.slide.goToGround();
-			}
-		}
-	}
 }

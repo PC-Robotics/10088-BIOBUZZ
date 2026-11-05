@@ -11,13 +11,12 @@ import com.pedropathing.utils.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.flywheel.FlywheelShooter;
 import org.firstinspires.ftc.teamcode.subsystems.gate.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.flywheel.ShotCalculatorMode;
-import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,7 @@ public class Robot {
 //				gate,
 //				flywheel,
 		};
-		follower = null; // Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);
+		follower = null; // Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);;
 
 		hubs = myOpMode.hardwareMap.getAll(LynxModule.class);
 		for (LynxModule h : hubs) {
@@ -116,6 +115,7 @@ public class Robot {
 
 		follower.update();
 		currentPose = follower.pose();
+		Poses.updateForRobotPose(currentPose);
 
 		flywheel.updateRobotPose(currentPose);
 		flywheel.updateGoalPose(scorePose);

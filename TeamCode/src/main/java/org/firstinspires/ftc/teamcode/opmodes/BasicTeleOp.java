@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.InitMenu;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.flywheel.ShotCalculatorManualCloseFar;
-import org.firstinspires.ftc.teamcode.subsystems.linearSlide.LinearSlide;
 
 @TeleOp(name = "Basic TeleOp")
 public class BasicTeleOp extends OpMode {
@@ -31,21 +30,19 @@ public class BasicTeleOp extends OpMode {
 	@Override
 	public void start() {
 		robot.setAlliance(initMenu.getAlliance());
-		robot.slide.start();
 	}
 
 
 	@Override
 	public void loop() {
-		robot.follower.manual(
+		robot.drivetrain.teleOpDrive(
 				-gamepad1.left_stick_y,
 				gamepad1.left_stick_x,
-				gamepad1.right_stick_x
+				gamepad1.right_stick_x,
+				gamepad1.left_bumper ? 0.5 : 1.0
 		);
-
 		intakeControl();
 		flywheelControl();
-		linearSlideControl();
 
 		robot.periodic();
 	}

@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.flowerIntake.FlowerIntake;
+import org.firstinspires.ftc.teamcode.subsystems.TwoStateServo;
 import org.firstinspires.ftc.teamcode.subsystems.flywheel.FlywheelShooter;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 
@@ -30,7 +30,8 @@ public class Robot {
 	public Drivetrain drivetrain;
 	public Intake intake;
 	public FlywheelShooter flywheel;
-	public FlowerIntake flowerIntake;
+	public TwoStateServo flowerIntake;
+	public TwoStateServo brake;
 	private Subsystem[] subsystems;
 
 	public boolean isRobotCentric = false;
@@ -72,12 +73,14 @@ public class Robot {
 		this.telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 //		drivetrain = new Drivetrain(myOpMode);
 //		intake = new Intake(myOpMode);
-//		flowerIntake = new FlowerIntake(myOpMode);
+//		flowerIntake = new TwoStateServo(myOpMode, "flowerIntake", Servo.Direction.FORWARD, 0.0, 1.0);
+//		brake = new TwoStateServo(myOpMode, "brake", Servo.Direction.FORWARD, 0.0, 1.0);
 //		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
 		subsystems = new Subsystem[]{
 //				drivetrain,
 //				intake,
 //				flowerIntake,
+//				brake,
 //				flywheel,
 		};
 		follower = null; // Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);;

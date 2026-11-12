@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.flowerIntake;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.instant;
@@ -6,15 +6,13 @@ import static com.pedropathing.ivy.commands.Commands.instant;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-
-import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 
 import java.util.List;
 import java.util.Locale;
 
-@Configurable
-public class FlowerIntake implements Subsystem {
+public class TwoStateServo implements Subsystem {
 	public enum State {
 		DOWN,
 		UP
@@ -22,15 +20,20 @@ public class FlowerIntake implements Subsystem {
 
 
 	public ServoImplEx servo;
-	public static State state = State.UP;
+	public State state = State.UP;
 
-	public static double openPosition = 0.7;
-	public static double closedPosition = 0.3;
+	public String deviceName;
+
+	public double openPosition;
+	public double closedPosition;
 
 
-	public FlowerIntake(OpMode opMode) {
-		servo = opMode.hardwareMap.get(ServoImplEx.class, "flowerIntake");
-		servo.setDirection(ServoImplEx.Direction.FORWARD);
+
+	public TwoStateServo(OpMode opMode, String deviceName, Servo.Direction direction, double openPosition, double closedPosition) {
+		servo = opMode.hardwareMap.get(ServoImplEx.class, deviceName);
+		servo.setDirection(direction);
+		this.openPosition = openPosition;
+		this.closedPosition = closedPosition;
 	}
 
 
@@ -64,7 +67,7 @@ public class FlowerIntake implements Subsystem {
 	@Override
 	public List<String> getSimpleTelemetry() {
 		return List.of(
-				"Flower Intake State:" + state
+				 deviceName + " State: " + state
 		);
 	}
 
@@ -72,7 +75,7 @@ public class FlowerIntake implements Subsystem {
 	@Override
 	public List<String> getDetailedTelemetry() {
 		return List.of(
-				"Flower Intake State:" + state,
+				deviceName + " State:" + state,
 				"Servo Position:" + String.format(Locale.US, "%.2f", servo.getPosition())
 		);
 	}

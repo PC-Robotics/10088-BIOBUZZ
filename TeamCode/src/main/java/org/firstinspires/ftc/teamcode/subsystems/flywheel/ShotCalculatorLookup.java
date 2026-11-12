@@ -3,12 +3,11 @@ package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 import static org.firstinspires.ftc.teamcode.Utility.lerp;
 import static org.firstinspires.ftc.teamcode.Utility.polarTo;
 
+import android.content.Context;
+
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.exceptions.CsvValidationException;
-
 import com.pedropathing.math.Pose;
-
-import android.content.Context;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
@@ -17,7 +16,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ShotCalculatorDistance implements ShotCalculator {
+public class ShotCalculatorLookup implements ShotCalculator {
 	private final TreeMap<Double, Double> distanceToRPM = new TreeMap<>();
 
 	private final double minDistance = 0;
@@ -26,7 +25,8 @@ public class ShotCalculatorDistance implements ShotCalculator {
 	private Pose robotPose;
 	private Pose goalPose;
 
-	public ShotCalculatorDistance() {
+
+	public ShotCalculatorLookup() {
 	}
 
 
@@ -37,26 +37,30 @@ public class ShotCalculatorDistance implements ShotCalculator {
 		loadFromCSV("shotTable.csv", "distance_inches", "rpm");
 	}
 
+
 	@Override
 	public void reset() {
 		robotPose = null;
 		goalPose = null;
 	}
 
+
 	@Override
 	public void updateRobotPose(Pose robotPose) {
 		this.robotPose = robotPose;
 	}
+
 
 	@Override
 	public void updateGoalPose(Pose goalPose) {
 		this.goalPose = goalPose;
 	}
 
+
 	@Override
 	public ShotSolution run() {
 		if (robotPose == null || goalPose == null || distanceToRPM.isEmpty()) {
-			return new ShotSolution(0.0, 0.0, 0.0, false);
+			return new ShotSolution(0.0, 0.0);
 		}
 
 		double[] polar = polarTo(robotPose, goalPose);
@@ -64,13 +68,14 @@ public class ShotCalculatorDistance implements ShotCalculator {
 		double heading = polar[1];
 
 		if (distance < minDistance || distance > maxDistance) {
-			return new ShotSolution(distance, 0.0, heading, false);
+			return new ShotSolution(0.0, heading);
 		}
 
 		double rpm = lookupRPM(distance);
 
-		return new ShotSolution(distance, rpm, heading, true);
+		return new ShotSolution(rpm, heading);
 	}
+
 
 	private double lookupRPM(double distance) {
 		Map.Entry<Double, Double> lower = distanceToRPM.floorEntry(distance);
@@ -90,21 +95,23 @@ public class ShotCalculatorDistance implements ShotCalculator {
 		return lerp(lower.getValue(), upper.getValue(), t);
 	}
 
+
 	// testing
 	public void addShotPoint(double distance, double rpm) {
 		distanceToRPM.put(distance, rpm);
 	}
 
+
 	public void clearShotPoints() {
 		distanceToRPM.clear();
 	}
+
 
 	public int loadFromCSV(String fileName, String keyHeader, String valueHeader) {
 		int linesLoaded = 0;
 		// read from APK assets
 		Context context = AppUtil.getDefContext();
-		try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(
-				new InputStreamReader(context.getAssets().open(fileName)))) {
+		try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(new InputStreamReader(context.getAssets().open(fileName)))) {
 			Map<String, String> row;
 			String k, v;
 			while ((row = reader.readMap()) != null) { // 2 in 1

@@ -1,29 +1,20 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.teamcode.Utility.normalizePowers;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.InitMenu;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.flywheel.ShotCalculatorManualCloseFar;
 
-@Autonomous(name = "Basic Auto")
-public class BasicAuto extends LinearOpMode {
+@Autonomous(name = "Leave Auto (Hard Stop)")
+public class LeaveAutoHardStop extends LinearOpMode {
 	private Robot robot;
 
 	private DcMotorEx frontLeft, backLeft, frontRight, backRight;
 
-	private double[] powers = new double[4];
-
+	private static double power = 0.5;
 
 	@Override
 	public void runOpMode() {
@@ -41,12 +32,15 @@ public class BasicAuto extends LinearOpMode {
 
 		waitForStart();
 
-		setMotorPowers(0.5, 0.5, 0.5, 0.5);
-		sleep(500);
+		setMotorPowers(power, power, power, power);
+		sleep(300);
+
 		frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 		backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 		frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 		backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+		sleep(30 * 1000);
 	}
 
 
@@ -55,35 +49,8 @@ public class BasicAuto extends LinearOpMode {
 		motor.setDirection(direction);
 		motor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 		motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-		motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+		motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 		return motor;
-	}
-
-	public void mecanumDrive(double straight, double strafe, double turn, boolean fineControl) {
-		// calculate powers
-		powers[0] = straight + strafe + turn; // front left power
-		powers[1] = straight - strafe + turn; // back left power
-		powers[2] = straight - strafe - turn; // front right power
-		powers[3] = straight + strafe - turn; // back right power
-
-		// powers array is updated inside this method
-		normalizePowers(powers);
-
-		for (int i = 0; i < 4; i++) {
-			if (fineControl) {
-				powers[i] *= 0.5;
-			}
-		}
-
-		setMotorPowers(powers);
-	}
-
-	public void setMotorPowers(double[] powers) {
-		if (powers.length == 4) {
-			setMotorPowers(powers[0], powers[1], powers[2], powers[3]);
-		} else {
-			throw new IllegalArgumentException("Powers array must have exactly 4 elements");
-		}
 	}
 
 	public void setMotorPowers(double frontLeftPower, double backLeftPower, double frontRightPower, double backRightPower) {

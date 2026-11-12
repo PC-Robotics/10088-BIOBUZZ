@@ -5,15 +5,14 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerLog;
-import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
 import com.pedropathing.utils.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TwoStateServo;
 import org.firstinspires.ftc.teamcode.subsystems.flywheel.FlywheelShooter;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -75,7 +74,7 @@ public class Robot {
 //		flowerIntake = new TwoStateServo(myOpMode, "flowerIntake", Servo.Direction.FORWARD, 0.0, 1.0);
 //		brake = new TwoStateServo(myOpMode, "brake", Servo.Direction.FORWARD, 0.0, 1.0);
 //      gate = new TwoStateServo(myOpMode, "gate", Servo.Direction.FORWARD, 0.0, 1.0);
-//		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
+//		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL);
 		subsystems = new Subsystem[]{
 //				drivetrain,
 //				intake,

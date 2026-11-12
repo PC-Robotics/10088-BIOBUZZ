@@ -4,5 +4,6 @@ package org.firstinspires.ftc.teamcode.subsystems.flywheel;
 public enum ShotCalculatorMode {
 	MANUAL_CLOSE_FAR,
 	DISTANCE,
+	MANUAL,
 	PROPORTIONAL
 }

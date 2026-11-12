@@ -4,15 +4,15 @@ import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static org.firstinspires.ftc.teamcode.Utility.getMotorVelocityRPM;
+import static org.firstinspires.ftc.teamcode.Utility.polarTo;
 
 import androidx.annotation.NonNull;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
@@ -68,20 +68,19 @@ public class FlywheelShooter implements Subsystem {
 
 	private Pose robotPose;
 	private Pose goalPose;
-	private ShotSolution currentShotSolution = new ShotSolution(0.0, 0.0, 0.0, false);
+	private ShotSolution currentShotSolution = new ShotSolution(0.0, 0.0);
 
 	private final EnumMap<ShotCalculatorMode, ShotCalculator> calculators = new EnumMap<>(ShotCalculatorMode.class);
-	private final ShotCalculatorManualCloseFar manualCloseFarCalculator = new ShotCalculatorManualCloseFar();
+	private final ShotCalculatorManual manualCalculator = new ShotCalculatorManual();
 
 
 	public FlywheelShooter(OpMode opMode, @NonNull ShotCalculatorMode shotCalculatorMode) {
 		this.shotCalculatorMode = shotCalculatorMode;
 
-		calculators.put(ShotCalculatorMode.MANUAL_CLOSE_FAR, manualCloseFarCalculator);
-		calculators.put(ShotCalculatorMode.DISTANCE, new ShotCalculatorDistance());
+		calculators.put(ShotCalculatorMode.MANUAL, manualCalculator);
+		calculators.put(ShotCalculatorMode.LOOKUP, new ShotCalculatorLookup());
 		calculators.put(ShotCalculatorMode.PROPORTIONAL, new ShotCalculatorProportional());
 		calculators.values().forEach(ShotCalculator::init);
-		manualCloseFarCalculator.setPreset(ShotCalculatorManualCloseFar.ShotPreset.CLOSE);
 
 		// TODO - make sure the correct one is backwards
 		motor = opMode.hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -162,7 +161,7 @@ public class FlywheelShooter implements Subsystem {
 
 
 	private void updateShotSolution() {
-		ShotCalculator active = calculators.getOrDefault(shotCalculatorMode, manualCloseFarCalculator);
+		ShotCalculator active = calculators.getOrDefault(shotCalculatorMode, manualCalculator);
 
 		if (robotPose != null) {
 			active.updateRobotPose(robotPose);
@@ -172,7 +171,7 @@ public class FlywheelShooter implements Subsystem {
 		}
 
 		currentShotSolution = active.run();
-		targetRPM = currentShotSolution.isValid() ? currentShotSolution.getTargetRPM() : 0.0;
+		targetRPM = currentShotSolution.getTargetRPM();
 	}
 
 
@@ -189,7 +188,7 @@ public class FlywheelShooter implements Subsystem {
 		return List.of(
 				"Flywheel State:" + flywheelState,
 				"Calculator Mode:" + shotCalculatorMode,
-				"Manual Preset:" + manualCloseFarCalculator.getPreset(),
+				"Manual RPM:" + String.format(Locale.US, "%.2f", manualCalculator.getRPM()),
 				"Ready To Shoot:" + isReadyToShoot(),
 				"Power:" + String.format(Locale.US, "%.2f", commandedPower)
 		);
@@ -202,14 +201,14 @@ public class FlywheelShooter implements Subsystem {
 				"Flywheel State:" + flywheelState,
 				"Controller State:" + controller.getState(),
 				"Calculator Mode:" + shotCalculatorMode,
-				"Manual Preset:" + manualCloseFarCalculator.getPreset(),
+				"Manual RPM:" + String.format(Locale.US, "%.2f", manualCalculator.getRPM()),
 				"Commanded Power:" + String.format(Locale.US, "%.2f", commandedPower),
 				"Current RPM:" + String.format(Locale.US, "%.2f", measuredRPM()),
 				"Filtered RPM:" + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getFilteredRPM() : Double.NaN),
 				"Target RPM:" + String.format(Locale.US, "%.2f", targetRPM),
 				"Error:" + String.format(Locale.US, "%.2f", controllerRunning() ? controller.getError() : Double.NaN),
 				"Shot Valid:" + currentShotSolution.isValid(),
-				"Shot Distance:" + String.format(Locale.US, "%.2f", currentShotSolution.getDistance()),
+				"Shot Distance:" + (robotPose != null && goalPose != null ? String.format(Locale.US, "%.2f", polarTo(robotPose, goalPose)[0]) : "N/A"),
 				"Ready To Shoot:" + isReadyToShoot(),
 				"LED Color:" + commandedLedColor
 		);
@@ -217,8 +216,8 @@ public class FlywheelShooter implements Subsystem {
 
 
 	// getters and setters
-	public void setManualPreset(@NonNull ShotCalculatorManualCloseFar.ShotPreset preset) {
-		manualCloseFarCalculator.setPreset(preset);
+	public void adjustManualRPM(double delta) {
+		manualCalculator.adjustRPM(delta);
 	}
 
 

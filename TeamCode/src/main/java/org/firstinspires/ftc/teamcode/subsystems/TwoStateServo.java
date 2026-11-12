@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.instant;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -26,7 +25,6 @@ public class TwoStateServo implements Subsystem {
 
 	public double openPosition;
 	public double closedPosition;
-
 
 
 	public TwoStateServo(OpMode opMode, String deviceName, Servo.Direction direction, double openPosition, double closedPosition) {

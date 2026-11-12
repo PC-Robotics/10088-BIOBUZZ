@@ -17,6 +17,7 @@ public class FlywheelBasicTester extends OpMode {
 		CONTROLLER
 	}
 
+
 	public static Mode mode = Mode.POWER;
 
 	public DcMotorEx motor;
@@ -46,6 +47,7 @@ public class FlywheelBasicTester extends OpMode {
 		hood = hardwareMap.get(ServoImplEx.class, "hood");
 		hood.setPosition(hoodZeroPosition);
 	}
+
 
 	@Override
 	public void loop() {

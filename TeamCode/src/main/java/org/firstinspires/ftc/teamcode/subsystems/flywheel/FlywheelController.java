@@ -84,7 +84,7 @@ public class FlywheelController {
 			case SPINUP:
 				return MAX_POWER;
 			case READY:
-				return Math.max(0.0, Math.min(MAX_POWER, kV*target + kP*error + kS*signum(error)));
+				return Math.max(0.0, Math.min(MAX_POWER, kV * target + kP * error + kS * signum(error)));
 			case COAST:
 			default:
 				return 0.0; // coast
@@ -96,19 +96,23 @@ public class FlywheelController {
 		target = Math.max(0.0, targetRPM);
 	}
 
+
 	public void reset(double measuredRPM) {
 		kalmanFilter.reset(measuredRPM, 1.0, 1.0);
 		error = 0.0;
 		controllerState = State.SPINUP;
 	}
 
+
 	public State getState() {
 		return controllerState;
 	}
 
+
 	public double getError() {
 		return error;
 	}
+
 
 	public double getFilteredRPM() {
 		return kalmanFilter.state();

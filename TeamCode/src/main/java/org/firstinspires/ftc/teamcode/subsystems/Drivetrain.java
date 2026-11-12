@@ -20,6 +20,8 @@ public class Drivetrain implements Subsystem {
 		MANUAL,
 		AUTO_AIM
 	}
+
+
 	private Follower follower;
 	private final Mecanum motors;
 	private boolean fieldCentric = true;
@@ -29,10 +31,12 @@ public class Drivetrain implements Subsystem {
 	Controller headingPID = Controller.pid(0, 0, 0);
 	final static double DEADZONE = 0.1;
 
+
 	public Drivetrain(Follower follower, OpMode opMode) {
 		this.follower = follower;
 		motors = ((Mecanum) follower.drivetrain);
 	}
+
 
 	public void teleOpDrive(double forward, double strafe, double turn, double speedMultiplier) {
 		pose = follower.pose(); // cache ts
@@ -73,9 +77,10 @@ public class Drivetrain implements Subsystem {
 						anchor = pose.plus(brakeDistance); // we add that to our current pose to get our anchor
 					}
 					follower.hold(anchor.withHeading(hiveTheta)); // and then hold with heading lock onto hive
-			}
+				}
 		}
 	}
+
 
 	// placeholder
 	@Override

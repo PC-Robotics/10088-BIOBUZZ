@@ -20,6 +20,7 @@ public class Poses {
 	public static Pose HIVE = BASE_HIVE;
 	public static Pose SHOOT_TELEOP = BASE_SHOOT_TELEOP;
 
+
 	public static void updateForRobotPose(Pose robotPose) {
 		boolean farSide = robotPose.y() > mirrorLineY;
 		HIVE = farSide ? MIRRORED_HIVE : BASE_HIVE;

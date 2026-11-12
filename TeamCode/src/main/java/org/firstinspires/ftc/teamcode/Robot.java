@@ -30,8 +30,7 @@ public class Robot {
 	public Drivetrain drivetrain;
 	public Intake intake;
 	public FlywheelShooter flywheel;
-	public TwoStateServo flowerIntake;
-	public TwoStateServo brake;
+	public TwoStateServo flowerIntake, brake, gate;
 	private Subsystem[] subsystems;
 
 	public boolean isRobotCentric = false;
@@ -75,12 +74,14 @@ public class Robot {
 //		intake = new Intake(myOpMode);
 //		flowerIntake = new TwoStateServo(myOpMode, "flowerIntake", Servo.Direction.FORWARD, 0.0, 1.0);
 //		brake = new TwoStateServo(myOpMode, "brake", Servo.Direction.FORWARD, 0.0, 1.0);
+//      gate = new TwoStateServo(myOpMode, "gate", Servo.Direction.FORWARD, 0.0, 1.0);
 //		flywheel = new FlywheelShooter(myOpMode, ShotCalculatorMode.MANUAL_CLOSE_FAR);
 		subsystems = new Subsystem[]{
 //				drivetrain,
 //				intake,
 //				flowerIntake,
 //				brake,
+//				gate,
 //				flywheel,
 		};
 		follower = null; // Constants.create(myOpMode.hardwareMap).withLogger(log -> this.followerLog = log);;
